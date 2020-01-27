@@ -33,7 +33,7 @@ class VideoLoader(data.Dataset):
 		video = np.reshape(video, (video.shape[3], video.shape[0], video.shape[1], video.shape[2])) #(c,t,w,h)
 			
 		# Each video is normalized by its mean and standard deviation to account for changes in lighting across the tank
-		if index not in means:
+		if index not in self.means:
 			self.means[index] = video[:,0].mean() # r,g,b
 			self.stds[index] = video[:,0].std() # r,g,b
 		
