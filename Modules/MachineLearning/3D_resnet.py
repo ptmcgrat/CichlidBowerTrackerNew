@@ -86,6 +86,7 @@ if args.mode == 'train':
 	# Load the trainset
 	trainset = VideoLoader(args.data, args.mode, (90,112,112))
 	print(len(trainset))
+	print(args.data)
 	trainset_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory = True)
 
 	optimizer = optim.SGD(model.parameters, lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
