@@ -1,4 +1,4 @@
-import os, torchvision
+import os
 from torchvision import transforms
 import torch.utils.data as data
 from skvideo import io as vp
