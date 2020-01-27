@@ -55,13 +55,13 @@ if args.pretrain_path is not None:
 
 else:
 	if args.model == 'r3d':
-		model = torchvision.models.video.r3d_18(pretrained=args.pre_trained, progress=True)
+		model = torchvision.models.video.r3d_18(pretrained=args.pretrained, progress=True)
 
 	elif args.model == 'mc3':
-		model = torchvision.models.video.mc3_18(pretrained=args.pre_trained, progress=True)    
+		model = torchvision.models.video.mc3_18(pretrained=args.pretrained, progress=True)    
 
 	elif args.model == 'r2plus1d':
-		model = torchvision.models.video.r2plus1d_18(pretrained=args.pre_trained, progress=True)    
+		model = torchvision.models.video.r2plus1d_18(pretrained=args.pretrained, progress=True)    
 
 if args.mode == 'train':
 	# Modifing the last layer according to our data
