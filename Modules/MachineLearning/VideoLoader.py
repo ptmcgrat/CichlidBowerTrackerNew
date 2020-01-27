@@ -34,7 +34,6 @@ class VideoLoader(data.Dataset):
 			
 		# Each video is normalized by its mean and standard deviation to account for changes in lighting across the tank
 		if index not in self.means:
-			print(video[:,0].shape)
 			self.means[index] = video[:,0].mean(axis = (1,2)) # r,g,b
 			self.stds[index] = video[:,0].std(axis = (1,2)) # r,g,b
 		
@@ -62,12 +61,10 @@ class VideoLoader(data.Dataset):
 
 		# Normalize each channel data
 		for c in range(3):
-			print(video.shape)
-			print(self.means[index])
 			cropped_video[c] = (cropped_video[c] - self.means[index][c])/self.stds[index][c]
 
 		# Return tensor, label, and filename
-		return (transforms.ToTensor(cropped_data), self.labels[self.videofiles[i]], self.videofiles[i].split('/')[-1])
+		return (transforms.ToTensor(cropped_video), self.labels[self.videofiles[i]], self.videofiles[i].split('/')[-1])
 
 	def __len__(self):
 		return len(self.videofiles)
