@@ -1,4 +1,4 @@
-import os
+import os, random
 from torchvision import transforms
 import torch.utils.data as data
 from skvideo import io as vp
