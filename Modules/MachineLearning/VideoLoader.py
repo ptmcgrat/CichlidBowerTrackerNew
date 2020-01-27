@@ -64,7 +64,7 @@ class VideoLoader(data.Dataset):
 			cropped_video[c] = (cropped_video[c] - self.means[index][c])/self.stds[index][c]
 
 		# Return tensor, label, and filename
-		return (transforms.ToTensor(cropped_video), self.labels[self.videofiles[i]], self.videofiles[i].split('/')[-1])
+		return (transforms.ToTensor()(cropped_video), self.labels[self.videofiles[i]], self.videofiles[i].split('/')[-1])
 
 	def __len__(self):
 		return len(self.videofiles)
