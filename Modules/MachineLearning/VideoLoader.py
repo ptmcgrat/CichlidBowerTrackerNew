@@ -34,8 +34,8 @@ class VideoLoader(data.Dataset):
 			
 		# Each video is normalized by its mean and standard deviation to account for changes in lighting across the tank
 		if index not in self.means:
-			self.means[index] = video[:,0].mean() # r,g,b
-			self.stds[index] = video[:,0].std() # r,g,b
+			self.means[index] = video[:,0].mean(axis = (2,3)) # r,g,b
+			self.stds[index] = video[:,0].std(axis = (2,3)) # r,g,b
 		
 		# The final video size is smaller than the original video
 		t_cut = video.shape[1] - self.output_shape[0] # how many frames to cut out: 30
@@ -57,11 +57,12 @@ class VideoLoader(data.Dataset):
 
 		# Flip the video if training
 		if random.randint(0,2) == 0 and self.datatype == 'train':
-			cropped_video = np.flip(cropped_data, axis = 1)
+			cropped_video = np.flip(cropped_video, axis = 1)
 
 		# Normalize each channel data
 		for c in range(3):
 			print(video.shape)
+			print(self.means[index])
 			cropped_video[c] = (cropped_video[c] - self.means[index][c])/self.stds[index][c]
 
 		# Return tensor, label, and filename
