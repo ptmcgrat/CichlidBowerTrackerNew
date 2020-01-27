@@ -4,6 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
 from torch import nn
 from torch.optim import lr_scheduler
+from time import time
 
 parser = argparse.ArgumentParser()
 
