@@ -2,6 +2,7 @@ import argparse, torch, pdb, torchvision
 from VideoLoader import VideoLoader
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
+from torch import nn
 
 parser = argparse.ArgumentParser()
 
