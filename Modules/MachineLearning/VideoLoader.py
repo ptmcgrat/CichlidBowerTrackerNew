@@ -35,8 +35,8 @@ class VideoLoader(data.Dataset):
 		# Each video is normalized by its mean and standard deviation to account for changes in lighting across the tank
 		if index not in self.means:
 			print(video[:,0].shape)
-			self.means[index] = video[:,0].mean(axis = (2,3)) # r,g,b
-			self.stds[index] = video[:,0].std(axis = (2,3)) # r,g,b
+			self.means[index] = video[:,0].mean(axis = (1,2)) # r,g,b
+			self.stds[index] = video[:,0].std(axis = (1,2)) # r,g,b
 		
 		# The final video size is smaller than the original video
 		t_cut = video.shape[1] - self.output_shape[0] # how many frames to cut out: 30
