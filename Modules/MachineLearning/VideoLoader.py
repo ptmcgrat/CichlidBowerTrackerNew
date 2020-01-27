@@ -14,6 +14,9 @@ class VideoLoader(data.Dataset):
 		# Directionary and list to hold data
 		self.labels = {} # will hold the labels for each mp4
 		self.videofiles = [] # Holds the location of all the video files
+		self.means = {} # Caches values of the mean so that it doesn't need to be recalculated each epoch
+		self.stds = {} # Caches values of the std so that it doesn't need to be recalculated each epoch
+
 
 		# Add videofiles and 
 		for label in [x for x in os.listdir(directory) if os.path.isdir(x)]:
@@ -28,8 +31,9 @@ class VideoLoader(data.Dataset):
 		video = np.reshape(video, (video.shape[3], video.shape[0], video.shape[1], video.shape[2])) #(c,t,w,h)
 			
 		# Each video is normalized by its mean and standard deviation to account for changes in lighting across the tank
-		means = video[:,0].mean() # r,g,b
-		stds = video[:,0].std() # r,g,b
+		if index not in means:
+			self.means[index] = video[:,0].mean() # r,g,b
+			self.stds[index] = video[:,0].std() # r,g,b
 		
 		# The final video size is smaller than the original video
 		t_cut = video.shape[1] - self.output_shape[0] # how many frames to cut out: 30
@@ -55,7 +59,7 @@ class VideoLoader(data.Dataset):
 
 		# Normalize each channel data
 		for c in range(3):
-			cropped_video[c] = (cropped_video[c] - means[c])/stds[c]
+			cropped_video[c] = (cropped_video[c] - self.means[index][c])/self.stds[index][c]
 
 		# Return tensor, label, and filename
 		return (transforms.ToTensor(cropped_data), self.labels[self.videofiles[i]], self.videofiles[i].split('/')[-1])
@@ -69,4 +73,4 @@ class DetectedObjectImageLoader(data.Dataset):
 		self.dt = pd.read_csv(labeled_csv, sep = ',')
 
 	def __get__item(self, index):
-		image = 
+		pass
