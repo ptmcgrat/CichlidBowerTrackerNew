@@ -23,12 +23,12 @@ class VideoLoader(data.Dataset):
 		for label in [x for x in os.listdir(directory) if os.path.isdir(directory + x)]:
 			for videofile in [x for x in os.listdir(directory + label) if '.mp4' in x]:
 				self.labels[videofile] = label
-				self.videofiles.append(videofile)
+				self.videofiles.append(directory+label+'/' + videofile)
 
 	def __getitem__(self, index):
 
 		# Read in video
-		video = vp.vread(self.directory+self.videofiles[index]) #(t,w,h,c)
+		video = vp.vread(self.videofiles[index]) #(t,w,h,c)
 		video = np.reshape(video, (video.shape[3], video.shape[0], video.shape[1], video.shape[2])) #(c,t,w,h)
 			
 		# Each video is normalized by its mean and standard deviation to account for changes in lighting across the tank
