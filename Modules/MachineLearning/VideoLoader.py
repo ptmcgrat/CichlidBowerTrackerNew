@@ -65,6 +65,9 @@ class VideoLoader(data.Dataset):
 		# Return tensor, label, and filename
 		return (transforms.ToTensor(cropped_data), self.labels[self.videofiles[i]], self.videofiles[i].split('/')[-1])
 
+	def __len__(self):
+		return len(self.videofiles)
+
 class DetectedObjectImageLoader(data.Dataset):
 	def __init__(self, image_directory, labeled_csv):
 		self.image_directory = image_directory
