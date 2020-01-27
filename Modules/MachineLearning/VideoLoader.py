@@ -63,7 +63,7 @@ class VideoLoader(data.Dataset):
 		for c in range(3):
 			print(c)
 			print(index)
-			print(self.means.shape)
+			print(self.means[index].shape)
 			print(self.means[index])
 			cropped_video[c] = (cropped_video[c] - self.means[index][c])/self.stds[index][c]
 
