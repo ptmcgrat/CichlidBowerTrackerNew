@@ -34,6 +34,9 @@ parser.add_argument('--num_classes', default=10, type=int,
 parser.add_argument('--learning_rate', default=0.001, type=float,
 					help='Learning rate of the model optimizer')
 
+parser.add_argument('--lr_patience', default=10, type=int,
+					help='Patience of LR scheduler. See documentation of ReduceLROnPlateau.')
+
 parser.add_argument('--momentum', default=0.9, type=float, 
 					help='momentum of the model optimizer')
 
