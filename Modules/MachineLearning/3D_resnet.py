@@ -87,8 +87,6 @@ if args.mode == 'train':
 	trainset = VideoLoader(args.data, args.mode, (90,112,112))
 	trainset_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory = True)
 
-	pdb.set_trace()
-	optimizer = optim.SGD(model.parameters, lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
 	scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=args.lr_patience)
 	criterion = nn.CrossEntropyLoss()
 
