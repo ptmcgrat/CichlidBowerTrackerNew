@@ -1,4 +1,4 @@
-import os, random
+import os, random, pdb
 from torchvision import transforms
 import torch.utils.data as data
 from skvideo import io as vp
@@ -61,6 +61,7 @@ class VideoLoader(data.Dataset):
 
 		# Normalize each channel data
 		for c in range(3):
+			pdb.set_trace()
 			cropped_video[c] = (cropped_video[c] - self.means[index][c])/self.stds[index][c]
 
 		# Return tensor, label, and filename
