@@ -3,6 +3,7 @@ from VideoLoader import VideoLoader
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
 from torch import nn
+from torch.optim import lr_scheduler
 
 parser = argparse.ArgumentParser()
 
