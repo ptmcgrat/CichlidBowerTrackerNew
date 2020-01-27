@@ -61,10 +61,7 @@ class VideoLoader(data.Dataset):
 
 		# Normalize each channel data
 		for c in range(3):
-			print(c)
-			print(index)
-			print(self.means[index].shape)
-			print(self.means[index])
+			print(video.shape
 			cropped_video[c] = (cropped_video[c] - self.means[index][c])/self.stds[index][c]
 
 		# Return tensor, label, and filename
