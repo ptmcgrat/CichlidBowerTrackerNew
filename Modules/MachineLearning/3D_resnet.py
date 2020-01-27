@@ -21,7 +21,7 @@ parser.add_argument('--fine_tune', default=False, type=bool,
 parser.add_argument('--mode', default = 'train', type = str, choices = ['train', 'predict'], 
 					help = 'Train a model or predict labels using previously created model')
 
-parser.add_argument('--data', default='MLclips/', type=str,
+parser.add_argument('--data', required = True, type=str,
 					help='path of the data directory. Assumed the directory will contain label/*mp4. Dataset must be training or testing')
 
 parser.add_argument('--results', type=str,
@@ -85,6 +85,7 @@ if args.mode == 'train':
 
 	# Load the trainset
 	trainset = VideoLoader(args.data, args.mode, (90,112,112))
+	print(len(trainset))
 	trainset_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory = True)
 
 	optimizer = optim.SGD(model.parameters, lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
