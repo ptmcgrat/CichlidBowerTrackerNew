@@ -5,6 +5,7 @@ import torch.optim as optim
 from torch import nn
 from torch.optim import lr_scheduler
 from time import time
+from torch.autograd import Variable
 
 parser = argparse.ArgumentParser()
 
