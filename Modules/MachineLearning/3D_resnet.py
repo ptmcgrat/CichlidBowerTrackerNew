@@ -81,7 +81,7 @@ if args.mode == 'train':
 	# To parallalize the model. By default it uses all available gpu. 
 	# Set visible devices using CUDA_VISIBLE_DEVICE
 	device = torch.device("cuda:3")
-	model.to(device)
+	#model.to(device)
 
 	#model = model.cuda()
 	#model = nn.DataParallel(model, device_ids=None)
