@@ -64,7 +64,7 @@ class VideoLoader(data.Dataset):
 			cropped_video[c] = (cropped_video[c] - self.means[index][c])/self.stds[index][c]
 
 		# Return tensor, label, and filename
-		out_tensor = torch.floatTensor(cropped_video.copy())
+		out_tensor = torch.tensor(cropped_video.copy())
 		return (out_tensor, self.labels[self.videofiles[index]], self.videofiles[index].split('/')[-1])
 
 	def __len__(self):
