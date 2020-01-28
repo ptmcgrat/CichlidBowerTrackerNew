@@ -19,11 +19,12 @@ class VideoLoader(data.Dataset):
 		self.means = {} # Caches values of the mean so that it doesn't need to be recalculated each epoch
 		self.stds = {} # Caches values of the std so that it doesn't need to be recalculated each epoch
 
+		self.numlabels = {'c':1,'f':2,'p':3,'t':4,'b':5,'m':6,'s':7,'x':8,'o':9,'d':10}
 
 		# Add videofiles and 
 		for label in [x for x in os.listdir(directory) if os.path.isdir(directory + x)]:
 			for videofile in [x for x in os.listdir(directory + label) if '.mp4' in x]:
-				self.labels[directory+label+'/' + videofile] = label
+				self.labels[directory+label+'/' + videofile] = self.numlabels[label]
 				self.videofiles.append(directory+label+'/' + videofile)
 
 	def __getitem__(self, index):
