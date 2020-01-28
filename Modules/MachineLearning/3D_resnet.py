@@ -107,6 +107,7 @@ if args.mode == 'train':
 			#target = target.cuda(async = True)
 			print(target)
 			target = target.cuda(async=True)
+			
 			data = Variable(data)
 			target = Variable(target)
 			
