@@ -83,8 +83,8 @@ if args.mode == 'train':
 	device = torch.device("cuda:3")
 	#model.to(device)
 
-	#model = model.cuda()
-	#model = nn.DataParallel(model, device_ids=None)
+	model = model.cuda()
+	model = nn.DataParallel(model, device_ids=None)
 
 	# Optimizer for the model
 	optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
