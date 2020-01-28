@@ -124,10 +124,10 @@ if args.mode == 'train':
 
 			optimizer.step()
 			
-			if iteration % log_interval == 0:
-				print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-					epoch, batch_idx * len(data), len(trainset_loader.dataset),
-					100. * batch_idx / len(trainset_loader), loss.item()))
+			#if iteration % 5 == 0:
+			#	print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+			#		epoch, batch_idx * len(data), len(trainset_loader.dataset),
+			#		100. * batch_idx / len(trainset_loader), loss.item()))
 			iteration += 1
 			pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
 			correct += pred.eq(target.view_as(pred)).sum().item()
