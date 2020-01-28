@@ -66,7 +66,7 @@ class VideoLoader(data.Dataset):
 		# Return tensor, label, and filename
 		tensors = []
 		for i in range(cropped_video.shape[0]):
-			tensors.append(transforms.ToTensor()(cropped_video[i]))
+			tensors.append(transforms.ToTensor()(cropped_video[i].copy()))
 		out_tensor = torch.stack(tensors, 0)
 		return (out_tensor, self.labels[self.videofiles[i]], self.videofiles[i].split('/')[-1])
 
