@@ -106,7 +106,6 @@ if args.mode == 'train':
 		for batch_idx, (data, target, path) in enumerate(trainset_loader):
 			target = target.cuda(non_blocking = True)
 
-			print(data)
 
 			data = Variable(data)
 			target = Variable(target)
