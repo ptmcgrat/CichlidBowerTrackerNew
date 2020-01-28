@@ -106,11 +106,11 @@ if args.mode == 'train':
 		for batch_idx, (data, target, path) in enumerate(trainset_loader):
 			target = target.cuda(non_blocking = True)
 			print(data)
-
+			data = data.cuda(non_blocking = True)
 			data = Variable(data)
 			target = Variable(target)
 
-			
+
 			output = model(data)
 			
 			lossFunction = nn.CrossEntropyLoss()
