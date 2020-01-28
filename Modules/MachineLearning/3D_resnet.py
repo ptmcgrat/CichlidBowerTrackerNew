@@ -107,7 +107,7 @@ if args.mode == 'train':
 			target = target.cuda(non_blocking = True)
 
 
-			data = Variable(data)
+			data = Variable(data, requires_grad = True)
 			target = Variable(target)
 
 
