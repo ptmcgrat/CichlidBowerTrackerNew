@@ -150,7 +150,7 @@ if args.mode == 'train':
         #     }
         #     torch.save(states, save_file_path)
         # check_accuracy(epoch) # evaluate at the end of epoch
-        model.val()
+        model.eval()
         start = time()
         iteration = 0
         avg_loss = 0
