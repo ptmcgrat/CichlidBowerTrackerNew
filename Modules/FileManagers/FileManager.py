@@ -100,13 +100,15 @@ class FileManager():
 
 	def createAnnotationData(self):
 		self.localAnnotationDir = self.localMasterDir + '__AnnotatedData/'
-		self.localBoxedFishDir = self.localAnnotationDir + 'BoxedFish/'
+		self.localObjectDetectionDir = self.localAnnotationDir + 'BoxedFish/'
 		self.local3DVideosDir = self.localAnnotationDir + 'LabeledVideos/'
 
 		self.localLabeledClipsFile = self.local3DVideosDir + 'ManualLabels.csv'
 		self.localLabeledClipsDir = self.local3DVideosDir + 'Clips/'
 		self.localOrganizedLabeledClipsDir = self.local3DVideosDir + 'OrganizedClips/'
 
+		self.localBoxedFishFile = self.localObjectDetectionDir + 'BoxedFish.csv'
+		self.localBoxedFishDir = self.localObjectDetectionDir + 'BoxedImages/'
 
 	def downloadProjectData(self, dtype):
 
@@ -206,6 +208,15 @@ class FileManager():
 			print(str(good_count) + ' labeled videos moved. Missing videos for ' + str(bad_count) + ' total videos.')
 			subprocess.call(['rm', '-rf', self.localLabeledClipsDir])
 
+		elif dtype == 'BoxedFish':
+			self.createDirectory(self.localMasterDir)
+			self.createDirectory(self.localObjectDetectionDir)
+			self.downloadData(self.localBoxedFishFile)
+			
+			boxedProjects = subprocess.run(['rclone', 'lsf', self.localBoxedFishDir.replace(self.localMasterDir, self.cloudMasterDir)], capture_output = True, encoding = 'utf-8').stdout.split()
+			for bp in boxedProjects:
+				if '.tar' in bp:
+					self.downloadData(self.localBoxedFishDir + bp.replace('.tar',''), tarred = True)
 		else:
 			raise KeyError('Unknown key: ' + dtype)
 
