@@ -1,6 +1,4 @@
 import argparse, os, pdb, sys, subprocess
-from Modules.DataPreparers.AnalysisPreparer import AnalysisPreparer as AP
-from Modules.DataPreparers.ProjectPreparer import ProjectPreparer as PP
 from Modeles.Tracker.CichlidTracker import CichlidTracker as CT
 
 parser = argparse.ArgumentParser()
