@@ -1,5 +1,5 @@
 import argparse, os, pdb, sys, subprocess
-from Modules.Tracker.CichlidTracker import CichlidTracker as CT
+from Modules.Tracking.CichlidTracker import CichlidTracker as CT
 
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(help='Available Commands', dest='command')
