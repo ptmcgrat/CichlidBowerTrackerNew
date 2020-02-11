@@ -1,7 +1,12 @@
 import platform, sys, os, shutil, datetime, subprocess, gspread, time, socket
 from Modules.FileManagers.FileManager import FileManager as FM
-import Modules.DataObjects.LogParser as LP
+from picamera import PiCamera
 import numpy as np
+
+
+
+import Modules.DataObjects.LogParser as LP
+
 from PIL import Image
 from oauth2client.service_account import ServiceAccountCredentials
 import matplotlib.image
@@ -23,27 +28,20 @@ class CichlidTracker:
         self.fileManager.downloadData(self.localCredentialSpreadsheet)
         self.credentialSpreadsheet = self.fileManager.localCredentialSpreadsheet # Rename to make code readable
 
-        # 5: Identify credential files (Credential files for uploading updates to Google Drive are found here)
-        self.credentialSpreadsheet = self.masterDirectory + 'CredentialFiles/SAcredentials.json'
-
-        # 6: Connect to Google Spreadsheets
+        # 5: Connect to Google Spreadsheets
         self._authenticateGoogleSpreadSheets() #Creates self.controllerGS
         self._modifyPiGS(error = '')
         
-        # 7: Start PiCamera
-        try:
-            from picamera import PiCamera
-            self.camera = PiCamera()
-            self.camera.resolution = (1296, 972)
-            self.camera.framerate = 30
-            self.piCamera = 'True'
-        except Exception:
-            self.piCamera = 'False'
-
-        # 8: Keep track of processes spawned to convert and upload videofiles
+        # 6: Start PiCamera
+        self.camera = PiCamera()
+        self.camera.resolution = (1296, 972)
+        self.camera.framerate = 30
+        self.piCamera = 'True'
+        
+        # 7: Keep track of processes spawned to convert and upload videofiles
         self.processes = [] 
 
-        # 9: Await instructions
+        # 8: Await instructions
         self.monitorCommands()
         
     def __del__(self):
@@ -176,7 +174,18 @@ class CichlidTracker:
             self._print('MasterStart: System: '+self.system + ',,Device: ' + self.device + ',,Camera: ' + str(self.piCamera) + ',,Uname: ' + str(platform.uname()) + ',,TankID: ' + self.tankID + ',,ProjectID: ' + self.projectID)
             self._print('MasterRecordInitialStart: Time: ' + str(self.masterStart))
             self._print('PrepFiles: FirstDepth: PrepFiles/FirstDepth.npy,,LastDepth: PrepFiles/LastDepth.npy,,PiCameraRGB: PiCameraRGB.jpg,,DepthRGB: DepthRGB.jpg')
-
+            picamera_settings = {'AnalogGain': str(self.camera.analog_gain), 'AWB_Gains': str(self.camera.awb_gains), 
+                                'AWB_Mode': str(self.camera.awb_mode), 'Brightness': str(self.camera.brightness), 
+                                'ClockMode': str(self.camera.clock_mode), 'Contrast': str(self.camera.contrast),
+                                'Crop': str(self.camera.crop),'DigitalGain': str(self.camera.digital_gain),
+                                'ExposureCompensation': str(self.camera.exposure_compensation),'ExposureMode': str(self.camera.exposure_mode),
+                                'ExposureSpeed': str(self.camera.exposure_speed),'FrameRate': str(self.camera.framerate),
+                                'ImageDenoise': str(self.camera.image_denoise),'MeterMode': str(self.camera.meter_mode),
+                                'RawFormat': str(self.camera.raw_format), 'Resolution': str(self.camera.resolution),
+                                'Saturation': str(self.camera.saturation),'SensorMode': str(self.camera.sensor_mode),
+                                'Sharpness': str(self.camera.sharpness),'ShutterSpeed': str(self.camera.shutter_speed),
+                                'VideoDenoise': str(self.camera.video_denoise),'VideoStabilization': str(self.camera.video_stabilization)}
+            self._print('PiCameraSettings: ' + ',,'.join([x + ': ' + picamera_settings[x] for x in sorted(picamera_settings.keys())]))
             self._createROI(useROI = False)
 
         else:
