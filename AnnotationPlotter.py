@@ -56,7 +56,7 @@ def plotPhoto(framefile, dt, fm_obj, user1, user2):
 	img = mpimg.imread(fm_obj.localBoxedFishDir + projectID + '/' + framefile)
 	plt.imshow(img)
 	ax = plt.gca()
-	print(dt[dt.Framefile == framefile][['User','Box']])
+	
 	annotations = dt[(dt.User == user1) & (dt.Framefile == framefile)]
 	if len(annotations) > 0:
 		for row in annotations.itertuples():
@@ -81,18 +81,34 @@ parser.add_argument('User2', type = str, help = 'Which user annotations to compa
 args = parser.parse_args()
 
 fm_obj = FM()
-#fm_obj.downloadAnnotationData('BoxedFish')
+fm_obj.downloadAnnotationData('BoxedFish')
 dt = pd.read_csv(fm_obj.localBoxedFishFile)
 
 all_dt = pd.merge(dt[dt.User == args.User1], dt[dt.User == args.User2], how = 'inner', on = 'Framefile') 
 
+print('Number of frames: ' + str(len(all_dt.groupby('Framefile'))))
+print('Number of frames with agreements: ' + str(len(all_dt[all_dt.Nfish_x == all_dt.Nfish_y].groupby('Framefile'))))
+print('Number of fish per frame for ' + args.User1)
+print(all_dt.groupby('Framefile').max().groupby('Nfish_x').count()['User_x'])
+print('Number of fish per frame for ' + args.User2)
+print(all_dt.groupby('Framefile').max().groupby('Nfish_y').count()['User_y'])
 addIOU(all_dt)
 
 user1_dt = all_dt.groupby(['Framefile','Box_x']).max()[['IOU','Nfish_x']].reset_index()
 
+print('Average IOU by number of fish:')
+print(user1_dt.groupby('Nfish_x').mean())
+
 framefiles = all_dt.groupby('Framefile').count().index
 
+
 for frame in framefiles:
-	projectID = frame.split('_' + frame.split('_')[-3] + '_vid')[0]
+	t_dt = all_dt[all_dt.Framefile == frame]
+	if t_dt.iloc[0,3] != t_dt.iloc[0,10]:
+		projectID = frame.split('_' + frame.split('_')[-3] + '_vid')[0]
 	#makePrediction(fm_obj.localBoxedFishDir + projectID + '/' + frame)
-	plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
+		#plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
+	else:
+		t_dt = user1_dt[user1_dt.Framefile == frame]
+		if t_dt.IOU.min() < 0.5:
+			plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
