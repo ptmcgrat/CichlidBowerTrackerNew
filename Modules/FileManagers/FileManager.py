@@ -23,6 +23,9 @@ class FileManager():
 
 		if projectID is not None:
 			self.createProjectData(projectID)
+
+		# Create file names 
+		self.createPiData()
 		self.createMLData()
 		self.createAnnotationData()
 
