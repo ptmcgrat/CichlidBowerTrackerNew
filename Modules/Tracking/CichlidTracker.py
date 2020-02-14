@@ -187,7 +187,7 @@ class CichlidTracker:
                                 'Sharpness': str(self.camera.sharpness),'ShutterSpeed': str(self.camera.shutter_speed),
                                 'VideoDenoise': str(self.camera.video_denoise),'VideoStabilization': str(self.camera.video_stabilization)}
             self._print('PiCameraSettings: ' + ',,'.join([x + ': ' + picamera_settings[x] for x in sorted(picamera_settings.keys())]))
-            self._createROI(useROI = False)
+            #self._createROI(useROI = False)
 
         else:
             self._print('MasterRecordRestart: Time: ' + str(datetime.datetime.now()))
