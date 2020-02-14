@@ -42,7 +42,10 @@ class CichlidTracker:
         # 7: Keep track of processes spawned to convert and upload videofiles
         self.processes = [] 
 
-        # 8: Await instructions
+        # 8: Set size of frame
+        self.r = (0,0,640,480)
+
+        # 9: Await instructions
         self.monitorCommands()
         
     def __del__(self):
@@ -161,7 +164,7 @@ class CichlidTracker:
         if command == 'Restart':
             logObj = LP.LogParser(self.loggerFile)
             self.masterStart = logObj.master_start
-            self.r = logObj.bounding_shape
+            #self.r = logObj.bounding_shape
             self.frameCounter = logObj.lastFrameCounter + 1
             self.backgroundCounter = logObj.lastBackgroundCounter + 1
             self.videoCounter = logObj.lastVideoCounter + 1
