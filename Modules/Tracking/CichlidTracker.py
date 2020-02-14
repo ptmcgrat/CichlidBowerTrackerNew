@@ -74,7 +74,7 @@ class CichlidTracker:
 
             print(command + '\t' + projectID)
             if command != 'None':
-                self.fileManager.createProjectID(projectID)    
+                self.fileManager.createProjectData(projectID)    
                 self.runCommand(command, projectID)
             self._modifyPiGS(status = 'AwaitingCommand')
             time.sleep(delta)
