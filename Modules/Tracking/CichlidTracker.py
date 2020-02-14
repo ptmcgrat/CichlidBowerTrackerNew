@@ -20,7 +20,8 @@ class CichlidTracker:
 
         # 2: Determine which Kinect is attached (This script can handle v1 or v2 Kinects)
         self._identifyDevice() #Stored in self.device
-        
+        self.system = platform.node()
+
         # 3: Create file manager
         self.fileManager = FM()
 
