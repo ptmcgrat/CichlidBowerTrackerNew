@@ -6,7 +6,7 @@ import argparse, subprocess, datetime, os
 parser = argparse.ArgumentParser()
 parser.add_argument('VideoFile', type = str, help = 'Name of h264 file to be processed')
 parser.add_argument('Framerate', type = float, help = 'Video framerate')
-parser.add_argument('ProjectID', type = float, help = 'Video framerate')
+parser.add_argument('ProjectID', type = str, help = 'Video framerate')
 
 
 args = parser.parse_args()
