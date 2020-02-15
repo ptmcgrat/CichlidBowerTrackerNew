@@ -304,7 +304,7 @@ class FileManager():
 				continue
 		
 		if len(writableDirs) == 1:
-			self.localMasterDir = '/media/pi/' + d + '/CichlidAnalyzer'
+			self.localMasterDir = '/media/pi/' + d + '/CichlidAnalyzer/'
 			self.system = 'pi'
 		elif len(writableDirs) == 0:
 			raise Exception('No writable drives in /media/pi/')

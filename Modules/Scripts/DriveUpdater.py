@@ -1,5 +1,6 @@
 import argparse, datetime, gspread
-from LogParser import LogParser as LP
+from Modules.DataObjects.LogParser import LogParser as LP
+from Modules.FileManagers.FileManager import FileManager as FM
 import matplotlib
 matplotlib.use('Pdf')  # Enables creation of pdf without needing to worry about X11 forwarding when ssh'ing into the Pi
 import matplotlib.pyplot as plt
@@ -16,12 +17,14 @@ args = parser.parse_args()
 class DriveUpdater:
     def __init__(self, logfile):
         self.lp = LP(logfile)
+        self.fileManager = FM()
+        self.fileManager.addProjectData(self.lp.projectID)
         self.node = self.lp.uname.split("node='")[1].split("'")[0]
         self.lastFrameTime = self.lp.frames[-1].time
-        self.masterDirectory = logfile.split(self.lp.projectID)[0]
-        self.projectDirectory = self.masterDirectory + self.lp.projectID + '/'
-        self.credentialDrive = self.masterDirectory + 'CredentialFiles/DriveCredentials.txt'
-        self.credentialSpreadsheet = self.masterDirectory + 'CredentialFiles/SAcredentials.json'
+        self.masterDirectory = self.fileManager.localMasterDir
+        self.projectDirectory = self.fileManager.localProjectDir
+        self.credentialDrive = self.fileManager.localCredentialDrive
+        self.credentialSpreadsheet = self.fileManager.localCredentialSpreadsheet
         self._createImage()
         f = self.uploadImage(self.lp.tankID + '.jpg', self.lp.tankID)
         self.insertImage(f)
