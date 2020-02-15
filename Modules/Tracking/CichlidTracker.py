@@ -27,6 +27,7 @@ class CichlidTracker:
 
         # 4: Download credential files
         self.fileManager.downloadData(self.fileManager.localCredentialSpreadsheet)
+        self.fileManager.downloadData(self.fileManager.localCredentialDrive)
         self.credentialSpreadsheet  = self.fileManager.localCredentialSpreadsheet # Rename to make code readable
 
         # 5: Connect to Google Spreadsheets
