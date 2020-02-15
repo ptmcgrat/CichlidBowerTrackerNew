@@ -18,7 +18,7 @@ class DriveUpdater:
     def __init__(self, logfile):
         self.lp = LP(logfile)
         self.fileManager = FM()
-        self.fileManager.addProjectData(self.lp.projectID)
+        self.fileManager.createProjectData(self.lp.projectID)
         self.node = self.lp.uname.split("node='")[1].split("'")[0]
         self.lastFrameTime = self.lp.frames[-1].time
         self.masterDirectory = self.fileManager.localMasterDir
