@@ -155,7 +155,7 @@ class CichlidTracker:
                 os.mkdir(self.projectDirectory)
             os.mkdir(self.frameDirectory)
             os.mkdir(self.videoDirectory)
-            ok.mkdir(self.backupDirectory)
+            os.mkdir(self.backupDirectory)
             #self._createDropboxFolders()
             self.frameCounter = 1
             self.videoCounter = 1
