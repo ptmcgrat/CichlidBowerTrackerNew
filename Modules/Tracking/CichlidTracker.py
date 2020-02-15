@@ -91,8 +91,8 @@ class CichlidTracker:
         self.projectDirectory = self.fileManager.localProjectDir
         self.loggerFile = self.fileManager.localLogfile
         self.frameDirectory = self.fileManager.localFrameDir
-        self.backgroundDirectory = self.fileManager.localBackgroundDir
         self.videoDirectory = self.fileManager.localVideoDir
+        self.backupDirectory = self.fileManager.localBackupDir
 
         if command not in self.commands:
             self._reinstructError(command + ' is not a valid command. Options are ' + str(self.commands))
@@ -114,7 +114,7 @@ class CichlidTracker:
                 self._print('ErrorStopping kinect')
                 
             command = ['python3', 'Modules/Scripts/processVideo.py', self.videoDirectory + str(self.videoCounter).zfill(4) + '_vid.h264']
-            command += [self.loggerFile, self.projectDirectory, self.cloudVideoDirectory]
+            command += [self.camera.framerate]
             self._print(command)
             self.processes.append(subprocess.Popen(command))
 
@@ -154,11 +154,10 @@ class CichlidTracker:
             if command == 'New':
                 os.mkdir(self.projectDirectory)
             os.mkdir(self.frameDirectory)
-            os.mkdir(self.backgroundDirectory)
             os.mkdir(self.videoDirectory)
+            ok.mkdir(self.backupDirectory)
             #self._createDropboxFolders()
             self.frameCounter = 1
-            self.backgroundCounter = 1
             self.videoCounter = 1
 
         if command == 'Restart':
@@ -166,7 +165,6 @@ class CichlidTracker:
             self.masterStart = logObj.master_start
             #self.r = logObj.bounding_shape
             self.frameCounter = logObj.lastFrameCounter + 1
-            self.backgroundCounter = logObj.lastBackgroundCounter + 1
             self.videoCounter = logObj.lastVideoCounter + 1
             if self.system != logObj.system or self.device != logObj.device or self.piCamera != logObj.camera:
                 self._reinstructError('Restart error. System, device, or camera does not match what is in logfile')
@@ -237,17 +235,17 @@ class CichlidTracker:
             
             if now > current_background_time:
                 if command == 'Snapshots':
-                    out = self._captureFrame(current_frame_time, new_background = True, max_frames = max_frames, stdev_threshold = stdev_threshold, snapshots = True)
+                    out = self._captureFrame(current_frame_time, max_frames = max_frames, stdev_threshold = stdev_threshold, snapshots = True)
                 else:
-                    out = self._captureFrame(current_frame_time, new_background = True, max_frames = max_frames, stdev_threshold = stdev_threshold)
+                    out = self._captureFrame(current_frame_time, max_frames = max_frames, stdev_threshold = stdev_threshold)
                 if out is not None:
                     current_background_time += datetime.timedelta(seconds = 60 * background_delta)
                 subprocess.Popen(['python3', 'Modules/Scripts/DriveUpdater.py', self.loggerFile])
             else:
                 if command == 'Snapshots':
-                    out = self._captureFrame(current_frame_time, new_background = False, max_frames = max_frames, stdev_threshold = stdev_threshold, snapshots = True)
+                    out = self._captureFrame(current_frame_time, max_frames = max_frames, stdev_threshold = stdev_threshold, snapshots = True)
                 else:    
-                    out = self._captureFrame(current_frame_time, new_background = False, max_frames = max_frames, stdev_threshold = stdev_threshold)
+                    out = self._captureFrame(current_frame_time, max_frames = max_frames, stdev_threshold = stdev_threshold)
             current_frame_time += datetime.timedelta(seconds = 60 * frame_delta)
 
             self._modifyPiGS(status = 'Running')
@@ -537,7 +535,7 @@ class CichlidTracker:
 
         self._print('FirstFrameCaptured: FirstFrame: Frames/FirstFrame.npy,,GoodDataCount: Frames/FirstDataCount.npy,,StdevCount: Frames/StdevCount.npy')
     
-    def _captureFrame(self, endtime, new_background = False, max_frames = 40, stdev_threshold = 25, snapshots = False):
+    def _captureFrame(self, endtime, max_frames = 40, stdev_threshold = 25, snapshots = False):
         # Captures time averaged frame of depth data
         
         sums = np.zeros(shape = (self.r[3], self.r[2]))
@@ -596,11 +594,6 @@ class CichlidTracker:
         np.save(self.projectDirectory +'Frames/Frame_' + str(self.frameCounter).zfill(6) + '.npy', avg_med)
         matplotlib.image.imsave(self.projectDirectory+'Frames/Frame_' + str(self.frameCounter).zfill(6) + '.jpg', color)
         self.frameCounter += 1
-        if new_background:
-            self._print('BackgroundCaptured: NpyFile: Backgrounds/Background_' + str(self.backgroundCounter).zfill(6) + '.npy,,PicFile: Backgrounds/Background_' + str(self.backgroundCounter).zfill(6) + '.jpg,,Time: ' + str(endtime)  + ',,NFrames: ' + str(num_frames) + ',,AvgMed: '+ '%.2f' % np.nanmean(avg_med) + ',,AvgStd: ' + '%.2f' % np.nanmean(avg_std) + ',,GP: ' + str(np.count_nonzero(~np.isnan(avg_med))))
-            np.save(self.projectDirectory +'Backgrounds/Background_' + str(self.backgroundCounter).zfill(6) + '.npy', avg_med)
-            matplotlib.image.imsave(self.projectDirectory+'Backgrounds/Background_' + str(self.backgroundCounter).zfill(6) + '.jpg', color)
-            self.backgroundCounter += 1
 
         return avg_med
 
@@ -620,7 +613,7 @@ class CichlidTracker:
         for p in self.processes:
             p.communicate()
 
-        self._modifyPiGS(status = 'Finishing upload of frames and backgrounds')
+        self._modifyPiGS(status = 'Creating prep files')
 
         # Move files around as appropriate
         prepDirectory = self.projectDirectory + 'PrepFiles/'
@@ -646,46 +639,18 @@ class CichlidTracker:
             self._modifyPiGS(status = 'Error: ' + self.frameDirectory + ' does not exist.')
             return
 
-        if not os.path.isdir(self.backgroundDirectory):
-            self._modifyPiGS(status = 'Error: ' + self.backgroundDirectory + ' does not exist.')
-            return
-
-
         subprocess.call(['cp', self.frameDirectory + 'Frame_000001.npy', prepDirectory + 'FirstDepth.npy'])
         subprocess.call(['cp', self.frameDirectory + 'Frame_' + str(self.frameCounter-1).zfill(6) + '.npy', prepDirectory + 'LastDepth.npy'])
-        subprocess.call(['tar', '-cvf', self.projectDirectory + 'Frames.tar', '-C', self.projectDirectory, 'Frames'])
-        subprocess.call(['tar', '-cvf', self.projectDirectory + 'Backgrounds.tar', '-C', self.projectDirectory, 'Backgrounds'])
-
-        #shutil.rmtree(self.frameDirectory) if os.path.exists(self.frameDirectory) else None
-        #shutil.rmtree(self.backgroundDirectory) if os.path.exists(self.backgroundDirectory) else None
-        
-        #        subprocess.call(['python3', '/home/pi/Kinect2/Modules/UploadData.py', self.projectDirectory, self.projectID])
-        print(['rclone', 'copy', self.projectDirectory, self.cloudMasterDirectory + self.projectID + '/'])
-        subprocess.call(['rclone', 'copy', self.projectDirectory + 'Frames.tar', self.cloudMasterDirectory + self.projectID + '/'])
-        subprocess.call(['rclone', 'copy', self.projectDirectory + 'Backgrounds.tar', self.cloudMasterDirectory + self.projectID + '/'])
-        subprocess.call(['rclone', 'copy', self.projectDirectory + 'PrepFiles/', self.cloudMasterDirectory + self.projectID + '/PrepFiles/'])
-        subprocess.call(['rclone', 'copy', self.projectDirectory + 'Videos/', self.cloudMasterDirectory + self.projectID + '/Videos/'])
-        subprocess.call(['rclone', 'copy', self.projectDirectory + 'Logfile.txt/', self.cloudMasterDirectory + self.projectID])
-        subprocess.call(['rclone', 'copy', self.projectDirectory + 'ProcessLog.txt/', self.cloudMasterDirectory + self.projectID])
-
         
         try:
-            self._modifyPiGS(status = 'Checking upload to see if it worked')
-            """
-            The 'rclone check' command checks for differences between the hashes of both
-            source and destination files, after the files have been uploaded. If the
-            check fails, the program returns non-zero exit status and the error is stored
-            in CalledProcessError class of the subprocess module.
-            """
-            subprocess.run(['rclone', 'check', self.projectDirectory + 'Frames.tar', self.cloudMasterDirectory + self.projectID + '/'], check = True)
-            subprocess.run(['rclone', 'check', self.projectDirectory + 'Backgrounds.tar', self.cloudMasterDirectory + self.projectID + '/'], check = True)
-            subprocess.run(['rclone', 'check', self.projectDirectory + 'PrepFiles/', self.cloudMasterDirectory + self.projectID + '/PrepFiles/'], check = True)
-            subprocess.run(['rclone', 'check', self.projectDirectory + 'Videos/', self.cloudMasterDirectory + self.projectID + '/Videos/'], check = True)
-            subprocess.run(['rclone', 'check', self.projectDirectory + 'Logfile.txt/', self.cloudMasterDirectory + self.projectID], check = True)
-            subprocess.run(['rclone', 'check', self.projectDirectory + 'ProcessLog.txt/', self.cloudMasterDirectory + self.projectID], check = True)
-
+            self._modifyPiGS(status = 'Uploading data to cloud')
+            self.fileManager.uploadData(self.frameDirectory, tarred = True)
+            self.fileManager.uploadData(prepDirectory)
+            self.fileManager.uploadData(self.videoDirectory)
+            self.fileManager.uploadData(self.loggerFile)
             self._modifyPiGS(status = 'UploadSuccessful, ready for delete')
-        except subprocess.CalledProcessError:
+
+        except:
             self._modifyPiGS(status = 'UploadFailed, Need to rerun')
         
     def _closeFiles(self):

@@ -43,8 +43,8 @@ class FileManager():
 		# Data directories created by tracker
 		self.localPrepDir = self.localProjectDir + 'PrepFiles/'
 		self.localFrameDir = self.localProjectDir + 'Frames/'
-		self.localBackgroundDir = self.localProjectDir + 'Backgrounds/'
 		self.localVideoDir = self.localProjectDir + 'Videos/'
+		self.localBackupDir = self.localProjectDir + 'Backups/'
 
 		# Directories created by analysis
 		self.localAnalysisDir = self.localProjectDir + 'MasterAnalysisFiles/'
@@ -352,11 +352,17 @@ class FileManager():
 
 		if os.path.isdir(local_path + relative_name):
 			output = subprocess.run(['rclone', 'copy', local_path + relative_name, cloud_path + relative_name], capture_output = True, encoding = 'utf-8')
+			subprocess.run(['rclone', 'check', local_path + relative_name, cloud_path + relative_name], check = True)
+
 		elif os.path.isfile(local_path + relative_name):
 			output = subprocess.run(['rclone', 'copy', local_path + relative_name, cloud_path], capture_output = True, encoding = 'utf-8')
+			subprocess.run(['rclone', 'check', local_path + relative_name, cloud_path], check = True)
+
 		else:
 			raise Exception(local_data + ' does not exist for upload')
 
 		if output.stderr != '':
 			raise Exception('Error in uploading file: ' + output.stderr)
+
+
 	
