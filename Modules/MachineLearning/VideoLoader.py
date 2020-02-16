@@ -45,7 +45,7 @@ class VideoLoader(data.Dataset):
 #             for videofile in [x for x in os.listdir(directory +'/'+ label) if '.mp4' in x]:
 #                 self.labels[videofile] = label
 #                 self.videofiles.append(directory +'/'+ label+'/'+videofile)
-        get the means and standard deviation for the pixels
+#         get the means and standard deviation for the pixels
         means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_validation.csv'
         with open(means_file,'w') as output:
             output.write(','.join(['Clip','MeanR','MeanG','MeanB','StdR','StdG','StdB']))
