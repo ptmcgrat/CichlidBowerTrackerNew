@@ -29,37 +29,38 @@ class VideoLoader(data.Dataset):
                 number,category_short,category_long = line.rstrip().split()
                 self.label_to_number[category_short] = int(number)-1
         # get the means and standard deviation for the pixels
-        means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_vp.csv'
-        self.means = {}
-        self.vars = {}
-        with open(means_file,'r') as input:
-            _ = input.readline()
-            for line in input:
-                Clip,MeanR,MeanG,MeanB,StdR,StdG,StdB = line.rstrip().split(',')
-                self.means[Clip] = np.array([MeanR,MeanG,MeanB]).astype('float64')
-                self.vars[Clip] = np.array([StdR, StdG, StdB]).astype('float64')
+#         
+#         means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_vp.csv'
+#         self.means = {}
+#         self.vars = {}
+#         with open(means_file,'r') as input:
+#             _ = input.readline()
+#             for line in input:
+#                 Clip,MeanR,MeanG,MeanB,StdR,StdG,StdB = line.rstrip().split(',')
+#                 self.means[Clip] = np.array([MeanR,MeanG,MeanB]).astype('float64')
+#                 self.vars[Clip] = np.array([StdR, StdG, StdB]).astype('float64')
 
         # Add videofiles and labels
-        for label in [x for x in os.listdir(directory) if os.path.isdir(directory+'/'+x)]:
-            for videofile in [x for x in os.listdir(directory +'/'+ label) if '.mp4' in x]:
-                self.labels[videofile] = label
-                self.videofiles.append(directory +'/'+ label+'/'+videofile)
-#         get the means and standard deviation for the pixels
-#         means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_vp.csv'
-#         with open(means_file,'w') as output:
-#             output.write(','.join(['Clip','MeanR','MeanG','MeanB','StdR','StdG','StdB']))
-#             output.write('\n')
-#             for i in range(len(self.videofiles)):
-#                 if i%100 == 0:
-#                     print(i)
-#                 video = vp.vread(self.videofiles[i])
-#                 video = np.transpose(video, (3, 0, 1, 2))
-#                 means = np.reshape(video, (video.shape[0], -1)).mean(axis=1)
-#                 stds = np.reshape(video, (video.shape[0], -1)).std(axis=1)
-#                 means_str = ','.join([str(i) for i in means])
-#                 stds_str = ','.join([str(i) for i in stds])
-#                 output.write(','.join([self.videofiles[i].split('/')[-1].split('.')[0],means_str,stds_str]))
-#                 output.write('\n')
+#         for label in [x for x in os.listdir(directory) if os.path.isdir(directory+'/'+x)]:
+#             for videofile in [x for x in os.listdir(directory +'/'+ label) if '.mp4' in x]:
+#                 self.labels[videofile] = label
+#                 self.videofiles.append(directory +'/'+ label+'/'+videofile)
+        get the means and standard deviation for the pixels
+        means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_validation.csv'
+        with open(means_file,'w') as output:
+            output.write(','.join(['Clip','MeanR','MeanG','MeanB','StdR','StdG','StdB']))
+            output.write('\n')
+            for i in range(len(self.videofiles)):
+                if i%100 == 0:
+                    print(i)
+                video = vp.vread(self.videofiles[i])
+                video = np.transpose(video, (3, 0, 1, 2))
+                means = np.reshape(video, (video.shape[0], -1)).mean(axis=1)
+                stds = np.reshape(video, (video.shape[0], -1)).std(axis=1)
+                means_str = ','.join([str(i) for i in means])
+                stds_str = ','.join([str(i) for i in stds])
+                output.write(','.join([self.videofiles[i].split('/')[-1].split('.')[0],means_str,stds_str]))
+                output.write('\n')
 
 
 
@@ -110,7 +111,7 @@ class VideoLoader(data.Dataset):
 
 
 # pdb.set_trace()
-# trainset = VideoLoader('/data/home/llong35/Temp/CichlidAnalyzer/__AnnotatedData/LabeledVideos/10classLabels/LabeledClips/training', 'train', (90,112,112))
+trainset = VideoLoader('/data/home/llong35/Temp/CichlidAnalyzer/__AnnotatedData/LabeledVideos/10classLabels/LabeledClips/validation', 'validation', (90,112,112))
 # trainset.__getitem__(0)
 # for i in range(trainset.__len__()):
 #     if i == 6125:
