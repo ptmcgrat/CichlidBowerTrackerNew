@@ -85,23 +85,29 @@ fm_obj.downloadAnnotationData('BoxedFish')
 dt = pd.read_csv(fm_obj.localBoxedFishFile)
 
 all_dt = pd.merge(dt[dt.User == args.User1], dt[dt.User == args.User2], how = 'inner', on = 'Framefile') 
-
-print('Number of frames: ' + str(len(all_dt.groupby('Framefile'))))
-print('Number of frames with agreements: ' + str(len(all_dt[all_dt.Nfish_x == all_dt.Nfish_y].groupby('Framefile'))))
+grouped = all_dt.groupby('Framefile').count()
+print('Number of frames with annotations from both: ')
+print(pd.pivot_table(grouped, values = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count'))
+print('Number of frames with agreements from both: ')
+print(pd.pivot_table(grouped[grouped.Nfish_x == grouped.Nfish_y], values = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count'))
 print('Number of fish per frame for ' + args.User1)
-print(all_dt.groupby('Framefile').max().groupby('Nfish_x').count()['User_x'])
+print(pd.pivot_table(grouped, values = 'Nfish_y', index = 'Nfish_x', columns = ['ProjectID_x'], aggfunc = 'count'))
 print('Number of fish per frame for ' + args.User2)
-print(all_dt.groupby('Framefile').max().groupby('Nfish_y').count()['User_y'])
+print(pd.pivot_table(grouped, values = 'Nfish_x', index = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count'))
+
 addIOU(all_dt)
 
-user1_dt = all_dt.groupby(['Framefile','Box_x']).max()[['IOU','Nfish_x']].reset_index()
-
+user1_dt = all_dt.groupby(['Framefile','Box_x']).max()[['IOU','Nfish_x','Nfish_y','ProjectID_x']].reset_index()
 print('Average IOU by number of fish:')
-print(user1_dt.groupby('Nfish_x').mean())
+print(pd.pivot_table(user1_dt, values = 'IOU', index = 'Nfish_x', columns = ['ProjectID_x']))
+
+sns.boxplot(data = user1_dt, y = 'IOU', x = 'ProjectID_x')
+sns.swarmplot(data = user1_dt, y = 'IOU', x = 'ProjectID_x', color = ".25")
+plt.show()
 
 framefiles = all_dt.groupby('Framefile').count().index
 
-
+"""
 for frame in framefiles:
 	t_dt = all_dt[all_dt.Framefile == frame]
 	if t_dt.iloc[0,3] != t_dt.iloc[0,10]:
@@ -112,3 +118,5 @@ for frame in framefiles:
 		t_dt = user1_dt[user1_dt.Framefile == frame]
 		if t_dt.IOU.min() < 0.5:
 			plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
+"""
+
