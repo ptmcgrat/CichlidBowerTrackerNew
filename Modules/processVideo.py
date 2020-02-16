@@ -23,7 +23,7 @@ assert os.path.isfile(args.VideoFile.replace('.h264', '.mp4'))
 assert os.path.getsize(args.VideoFile.replace('.h264','.mp4')) > os.path.getsize(args.VideoFile)
 
 # Sync with cloud (will return error if something goes wrong)
-FM.uploadData(args.VideoFile.replace('.h264', '.mp4'))
+fileManager.uploadData(args.VideoFile.replace('.h264', '.mp4'))
 
 # Delete videos
 subprocess.run(['mv', args.VideoFile, '../Backups/'])
