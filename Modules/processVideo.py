@@ -26,5 +26,6 @@ assert os.path.getsize(args.VideoFile.replace('.h264','.mp4')) > os.path.getsize
 fileManager.uploadData(args.VideoFile.replace('.h264', '.mp4'))
 
 # Delete videos
-subprocess.run(['mv', args.VideoFile, '../Backups/'])
+if '/Videos/' in args.VideoFile:
+	subprocess.run(['mv', args.VideoFile, args.VideoFile.split('/Videos/')[0] + '/Backups/'])
 
