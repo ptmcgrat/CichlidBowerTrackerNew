@@ -40,11 +40,11 @@ class VideoLoader(data.Dataset):
 #                 self.means[Clip] = np.array([MeanR,MeanG,MeanB]).astype('float64')
 #                 self.vars[Clip] = np.array([StdR, StdG, StdB]).astype('float64')
 
-        # Add videofiles and labels
-#         for label in [x for x in os.listdir(directory) if os.path.isdir(directory+'/'+x)]:
-#             for videofile in [x for x in os.listdir(directory +'/'+ label) if '.mp4' in x]:
-#                 self.labels[videofile] = label
-#                 self.videofiles.append(directory +'/'+ label+'/'+videofile)
+        Add videofiles and labels
+        for label in [x for x in os.listdir(directory) if os.path.isdir(directory+'/'+x)]:
+            for videofile in [x for x in os.listdir(directory +'/'+ label) if '.mp4' in x]:
+                self.labels[videofile] = label
+                self.videofiles.append(directory +'/'+ label+'/'+videofile)
 #         get the means and standard deviation for the pixels
         means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_validation.csv'
         with open(means_file,'w') as output:
