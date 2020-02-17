@@ -114,9 +114,6 @@ if args.mode == 'train':
         avg_loss = 0
         correct = 0
         for batch_idx, (data, target, path) in enumerate(trainset_loader):
-            if batch_idx<11800:
-                print(batch_idx)
-                break
             data = data.float()
             target = target.cuda(async=True)
             inputs = Variable(data)
@@ -157,7 +154,7 @@ if args.mode == 'train':
         #     }
         #     torch.save(states, save_file_path)
         # check_accuracy(epoch) # evaluate at the end of epoch
-        pdb.set_trace()
+
         with torch.no_grad():
 #         model.eval()
             start = time()
