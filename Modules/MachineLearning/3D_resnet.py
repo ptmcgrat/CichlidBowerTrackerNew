@@ -116,7 +116,7 @@ if args.mode == 'train':
         for batch_idx, (data, target, path) in enumerate(trainset_loader):
             if batch_idx<11800:
                 print(batch_idx)
-                continue
+                break
             data = data.float()
             target = target.cuda(async=True)
             inputs = Variable(data)
@@ -141,12 +141,12 @@ if args.mode == 'train':
             pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
             correct += pred.eq(target.view_as(pred)).sum().item()
 
-        end = time()
-        print ('\nSummary: Epoch {}'.format(epoch))
-        print('Time taken for this epoch: {:.2f}s'.format(end-start))
-        print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-        avg_loss/len(trainset_loader.dataset), correct, len(trainset_loader.dataset),
-        100. * correct / len(trainset_loader.dataset)))
+#         end = time()
+#         print ('\nSummary: Epoch {}'.format(epoch))
+#         print('Time taken for this epoch: {:.2f}s'.format(end-start))
+#         print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+#         avg_loss/len(trainset_loader.dataset), correct, len(trainset_loader.dataset),
+#         100. * correct / len(trainset_loader.dataset)))
         
         # if epoch % args.save_interval == 0:
         #     save_file_path = os.path.join(results, 'save_{}.pth'.format(epoch))
