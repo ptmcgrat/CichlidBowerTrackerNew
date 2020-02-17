@@ -113,7 +113,6 @@ if args.mode == 'train':
         iteration = 0
         avg_loss = 0
         correct = 0
-        pdb.set_trace()
         for batch_idx, (data, target, path) in enumerate(trainset_loader):
             data = data.float()
             target = target.cuda(async=True)
@@ -121,7 +120,7 @@ if args.mode == 'train':
             targets = Variable(target)
             output = model(inputs)
             
-            output = model(data)
+#             output = model(data)
             
             loss = criterion(output, target)
             avg_loss += loss
@@ -161,9 +160,14 @@ if args.mode == 'train':
         avg_loss = 0
         correct = 0
         for batch_idx, (data, target, path) in enumerate(valset_loader):
-            target = target.cuda(async=True)
             data = data.float()
-            output = model(data)
+            target = target.cuda(async=True)
+            inputs = Variable(data)
+            targets = Variable(target)
+            output = model(inputs)
+#             target = target.cuda(async=True)
+#             data = data.float()
+#             output = model(data)
             
             loss = criterion(output, target)
             avg_loss += loss
