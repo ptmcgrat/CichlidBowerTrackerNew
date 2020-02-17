@@ -115,11 +115,12 @@ if args.mode == 'train':
         correct = 0
         pdb.set_trace()
         for batch_idx, (data, target, path) in enumerate(trainset_loader):
+            data = data.float()
             target = target.cuda(async=True)
             inputs = Variable(data)
             targets = Variable(target)
             output = model(inputs)
-            data = data.float()
+            
             output = model(data)
             
             loss = criterion(output, target)
