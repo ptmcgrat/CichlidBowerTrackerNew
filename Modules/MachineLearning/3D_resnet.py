@@ -115,6 +115,7 @@ if args.mode == 'train':
         correct = 0
         for batch_idx, (data, target, path) in enumerate(trainset_loader):
             if batch_idx<11800:
+                print(batch_idx)
                 continue
             data = data.float()
             target = target.cuda(async=True)
