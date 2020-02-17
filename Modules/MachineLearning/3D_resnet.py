@@ -157,6 +157,7 @@ if args.mode == 'train':
         #     }
         #     torch.save(states, save_file_path)
         # check_accuracy(epoch) # evaluate at the end of epoch
+        pdb.set_trace()
         model.eval()
         start = time()
         iteration = 0
