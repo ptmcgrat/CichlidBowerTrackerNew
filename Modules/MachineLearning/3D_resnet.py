@@ -8,6 +8,7 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
 from time import time
 
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--model', default='r3d', type=str, choices = ['r3d', 'mc3', 'r2plus1d'], 
@@ -54,7 +55,7 @@ parser.add_argument('--epochs', default=50, type=int,
 parser.add_argument('--batch_size', default=4, type=int,
                     help='batch size for training and testing dataloader')
 
-parser.add_argument('--num_workers', default=6, type=int,
+parser.add_argument('--num_workers', default=8, type=int,
                     help='number of threads to use')
 
 args = parser.parse_args()
@@ -112,9 +113,12 @@ if args.mode == 'train':
         iteration = 0
         avg_loss = 0
         correct = 0
-
+        pdb.set_trace()
         for batch_idx, (data, target, path) in enumerate(trainset_loader):
             target = target.cuda(async=True)
+            inputs = Variable(data)
+            targets = Variable(target)
+            output = model(inputs)
             data = data.float()
             output = model(data)
             
@@ -178,4 +182,4 @@ if args.mode == 'train':
         print('Val set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
             avg_loss / len(valset_loader.dataset), correct, len(trainset_loader.dataset),
             100. * correct / len(trainset_loader.dataset)))
-torch.cuda.empty_cache() # Clear cache after training
+
