@@ -114,6 +114,8 @@ if args.mode == 'train':
         avg_loss = 0
         correct = 0
         for batch_idx, (data, target, path) in enumerate(trainset_loader):
+            if batch_idx<11800:
+                continue
             data = data.float()
             target = target.cuda(async=True)
             inputs = Variable(data)
