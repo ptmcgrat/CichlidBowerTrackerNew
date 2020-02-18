@@ -115,7 +115,7 @@ class CichlidTracker:
                 self._print('ErrorStopping kinect')
                 
             command = ['python3', 'Modules/Scripts/processVideo.py', self.videoDirectory + str(self.videoCounter).zfill(4) + '_vid.h264']
-            command += [self.camera.framerate[0], self.projectID]
+            command += [str(self.camera.framerate[0]), self.projectID]
             self._print(command)
             self.processes.append(subprocess.Popen(command))
 
@@ -227,7 +227,7 @@ class CichlidTracker:
                     self._print('PiCameraStopped: Time: ' + str(datetime.datetime.now()) + ',, File: Videos/' + str(self.videoCounter).zfill(4) + "_vid.h264")
                     #self._print(['rclone', 'copy', self.videoDirectory + str(self.videoCounter).zfill(4) + "_vid.h264"])
                     command = ['python3', 'Modules/Scripts/processVideo.py', self.videoDirectory + str(self.videoCounter).zfill(4) + '_vid.h264']
-                    command += [self.camera.framerate[0], self.projectID]
+                    command += [str(self.camera.framerate[0]), self.projectID]
                     self._print(command)
                     self.processes.append(subprocess.Popen(command))
                     self.videoCounter += 1
@@ -607,7 +607,7 @@ class CichlidTracker:
         for movieFile in os.listdir(self.videoDirectory):
             if '.h264' in movieFile:
                 command = ['python3', 'Modules/Scripts/processVideo.py', movieFile]
-                command += [self.camera.framerate[0], self.projectID]
+                command += [str(self.camera.framerate[0]), self.projectID]
                 self._print(command)
                 self.processes.append(subprocess.Popen(command))
 
