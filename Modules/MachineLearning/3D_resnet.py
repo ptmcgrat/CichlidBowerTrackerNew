@@ -8,6 +8,7 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
 from time import time
 
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--model', default='r3d', type=str, choices = ['r3d', 'mc3', 'r2plus1d'], 
@@ -54,7 +55,7 @@ parser.add_argument('--epochs', default=50, type=int,
 parser.add_argument('--batch_size', default=4, type=int,
                     help='batch size for training and testing dataloader')
 
-parser.add_argument('--num_workers', default=6, type=int,
+parser.add_argument('--num_workers', default=8, type=int,
                     help='number of threads to use')
 
 args = parser.parse_args()
@@ -112,11 +113,14 @@ if args.mode == 'train':
         iteration = 0
         avg_loss = 0
         correct = 0
-
         for batch_idx, (data, target, path) in enumerate(trainset_loader):
-            target = target.cuda(async=True)
             data = data.float()
-            output = model(data)
+            target = target.cuda(async=True)
+            inputs = Variable(data)
+            targets = Variable(target)
+            output = model(inputs)
+            
+#             output = model(data)
             
             loss = criterion(output, target)
             avg_loss += loss
@@ -134,12 +138,12 @@ if args.mode == 'train':
             pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
             correct += pred.eq(target.view_as(pred)).sum().item()
 
-        end = time()
-        print ('\nSummary: Epoch {}'.format(epoch))
-        print('Time taken for this epoch: {:.2f}s'.format(end-start))
-        print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-        avg_loss/len(trainset_loader.dataset), correct, len(trainset_loader.dataset),
-        100. * correct / len(trainset_loader.dataset)))
+#         end = time()
+#         print ('\nSummary: Epoch {}'.format(epoch))
+#         print('Time taken for this epoch: {:.2f}s'.format(end-start))
+#         print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+#         avg_loss/len(trainset_loader.dataset), correct, len(trainset_loader.dataset),
+#         100. * correct / len(trainset_loader.dataset)))
         
         # if epoch % args.save_interval == 0:
         #     save_file_path = os.path.join(results, 'save_{}.pth'.format(epoch))
@@ -150,32 +154,39 @@ if args.mode == 'train':
         #     }
         #     torch.save(states, save_file_path)
         # check_accuracy(epoch) # evaluate at the end of epoch
-        model.eval()
-        start = time()
-        iteration = 0
-        avg_loss = 0
-        correct = 0
-        for batch_idx, (data, target, path) in enumerate(valset_loader):
-            target = target.cuda(async=True)
-            data = data.float()
-            output = model(data)
+
+        with torch.no_grad():
+#         model.eval()
+            start = time()
+            iteration = 0
+            avg_loss = 0
+            correct = 0
+            for batch_idx, (data, target, path) in enumerate(valset_loader):
+                data = data.float()
+                target = target.cuda(async=True)
+                inputs = Variable(data)
+                targets = Variable(target)
+                output = model(inputs)
+    #             target = target.cuda(async=True)
+    #             data = data.float()
+    #             output = model(data)
             
-            loss = criterion(output, target)
-            avg_loss += loss
-            if iteration % log_interval == 0:
-                print('Val Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                    epoch, batch_idx * len(data), len(trainset_loader.dataset),
-                           100. * batch_idx / len(trainset_loader), loss.item()))
-            iteration += 1
-            pred = output.max(1, keepdim=True)[1]  # get the index of the max log-probability
-            correct += pred.eq(target.view_as(pred)).sum().item()
+                loss = criterion(output, target)
+                avg_loss += loss
+                if iteration % log_interval == 0:
+                    print('Val Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                        epoch, batch_idx * len(data), len(trainset_loader.dataset),
+                               100. * batch_idx / len(trainset_loader), loss.item()))
+                iteration += 1
+                pred = output.max(1, keepdim=True)[1]  # get the index of the max log-probability
+                correct += pred.eq(target.view_as(pred)).sum().item()
 
-        end = time()
+            end = time()
 
-        print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-            avg_loss / len(trainset_loader.dataset), correct, len(trainset_loader.dataset),
-            100. * correct / len(trainset_loader.dataset)))
-        print('Val set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-            avg_loss / len(valset_loader.dataset), correct, len(trainset_loader.dataset),
-            100. * correct / len(trainset_loader.dataset)))
-torch.cuda.empty_cache() # Clear cache after training
+            print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+                avg_loss / len(trainset_loader.dataset), correct, len(trainset_loader.dataset),
+                100. * correct / len(trainset_loader.dataset)))
+            print('Val set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+                avg_loss / len(valset_loader.dataset), correct, len(trainset_loader.dataset),
+                100. * correct / len(trainset_loader.dataset)))
+

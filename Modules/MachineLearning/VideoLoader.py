@@ -29,6 +29,7 @@ class VideoLoader(data.Dataset):
                 number,category_short,category_long = line.rstrip().split()
                 self.label_to_number[category_short] = int(number)-1
         # get the means and standard deviation for the pixels
+        
         means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_vp.csv'
         self.means = {}
         self.vars = {}
@@ -39,13 +40,13 @@ class VideoLoader(data.Dataset):
                 self.means[Clip] = np.array([MeanR,MeanG,MeanB]).astype('float64')
                 self.vars[Clip] = np.array([StdR, StdG, StdB]).astype('float64')
 
-        # Add videofiles and labels
+#         Add videofiles and labels
         for label in [x for x in os.listdir(directory) if os.path.isdir(directory+'/'+x)]:
             for videofile in [x for x in os.listdir(directory +'/'+ label) if '.mp4' in x]:
                 self.labels[videofile] = label
                 self.videofiles.append(directory +'/'+ label+'/'+videofile)
 #         get the means and standard deviation for the pixels
-#         means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_vp.csv'
+#         means_file = '/'.join(self.directory.split('/')[:-2])+'/MeansAll_validation.csv'
 #         with open(means_file,'w') as output:
 #             output.write(','.join(['Clip','MeanR','MeanG','MeanB','StdR','StdG','StdB']))
 #             output.write('\n')
@@ -110,7 +111,7 @@ class VideoLoader(data.Dataset):
 
 
 # pdb.set_trace()
-# trainset = VideoLoader('/data/home/llong35/Temp/CichlidAnalyzer/__AnnotatedData/LabeledVideos/10classLabels/LabeledClips/training', 'train', (90,112,112))
+# trainset = VideoLoader('/data/home/llong35/Temp/CichlidAnalyzer/__AnnotatedData/LabeledVideos/10classLabels/LabeledClips/validation', 'validation', (90,112,112))
 # trainset.__getitem__(0)
 # for i in range(trainset.__len__()):
 #     if i == 6125:
