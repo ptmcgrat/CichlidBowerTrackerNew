@@ -85,7 +85,7 @@ fm_obj.downloadAnnotationData('BoxedFish')
 dt = pd.read_csv(fm_obj.localBoxedFishFile)
 
 all_dt = pd.merge(dt[dt.User == args.User1], dt[dt.User == args.User2], how = 'inner', on = 'Framefile') 
-grouped = all_dt.groupby('Framefile').count()
+grouped = all_dt.groupby('Framefile').max()
 print('Number of frames with annotations from both: ')
 print(pd.pivot_table(grouped, values = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count'))
 print('Number of frames with agreements from both: ')
