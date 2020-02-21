@@ -55,7 +55,7 @@ parser.add_argument('--epochs', default=1, type=int,
 parser.add_argument('--batch_size', default=4, type=int,
                     help='batch size for training and testing dataloader')
 
-parser.add_argument('--num_workers', default=8, type=int,
+parser.add_argument('--num_workers', default=0, type=int,
                     help='number of threads to use')
 
 args = parser.parse_args()
