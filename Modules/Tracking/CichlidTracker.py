@@ -105,6 +105,11 @@ class CichlidTracker:
                     self.camera.stop_recording()
                     self._print('PiCameraStopped: Time: ' + str(datetime.datetime.now()) + ',,File: Videos/' + str(self.videoCounter).zfill(4) + "_vid.h264")
                     
+                    command = ['python3', 'Modules/processVideo.py', self.videoDirectory + str(self.videoCounter).zfill(4) + '_vid.h264']
+                    command += [str(self.camera.framerate[0]), self.projectID]
+                    self._print(command)
+                    self.processes.append(subprocess.Popen(command))
+
             try:
                 if self.device == 'kinect2':
                     self.K2device.stop()
@@ -114,10 +119,7 @@ class CichlidTracker:
             except:
                 self._print('ErrorStopping kinect')
                 
-            command = ['python3', 'Modules/processVideo.py', self.videoDirectory + str(self.videoCounter).zfill(4) + '_vid.h264']
-            command += [str(self.camera.framerate[0]), self.projectID]
-            self._print(command)
-            self.processes.append(subprocess.Popen(command))
+         
 
             self._closeFiles()
 
@@ -625,7 +627,7 @@ class CichlidTracker:
 
         self.frameCounter = lp.lastFrameCounter + 1
 
-        videoObj = [x for x in lp.movies if x.time.hour >= 8 and x.time.hour <= 20][0]
+        videoObj = [x for x in lp.movies if x.startTime.hour >= 8 and x.startTime.hour <= 20][0]
         subprocess.call(['cp', self.projectDirectory + videoObj.pic_file, prepDirectory + 'PiCameraRGB.jpg'])
 
         subprocess.call(['cp', self.projectDirectory + lp.movies[-1].pic_file, prepDirectory + 'LastPiCameraRGB.jpg'])
