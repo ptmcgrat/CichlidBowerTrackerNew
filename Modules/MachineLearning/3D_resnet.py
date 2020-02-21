@@ -49,7 +49,7 @@ parser.add_argument('--momentum', default=0.9, type=float,
 parser.add_argument('--weight_decay', default=1e-3, type=float,
                     help='weight decay of the model optimizer')
 
-parser.add_argument('--epochs', default=50, type=int,
+parser.add_argument('--epochs', default=1, type=int,
                     help='Number of epoch to train the model')
 
 parser.add_argument('--batch_size', default=4, type=int,
@@ -137,6 +137,7 @@ if args.mode == 'train':
             iteration += 1
             pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
             correct += pred.eq(target.view_as(pred)).sum().item()
+            break
 
         end = time()
         print ('\nSummary: Epoch {}'.format(epoch))
@@ -180,6 +181,7 @@ if args.mode == 'train':
                 iteration += 1
                 pred = output.max(1, keepdim=True)[1]  # get the index of the max log-probability
                 correct += pred.eq(target.view_as(pred)).sum().item()
+                break
 
             end = time()
             print('Val set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
