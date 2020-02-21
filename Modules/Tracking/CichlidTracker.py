@@ -633,7 +633,7 @@ class CichlidTracker:
         subprocess.call(['cp', self.projectDirectory + lp.movies[-1].pic_file, prepDirectory + 'LastPiCameraRGB.jpg'])
 
         # Find depthfile that is closest to the video file time
-        depthObj = [x for x in lp.frames if x.time > videoObj.time][0]
+        depthObj = [x for x in lp.frames if x.time > videoObj.startTime][0]
 
 
         subprocess.call(['cp', self.projectDirectory + depthObj.pic_file, prepDirectory + 'DepthRGB.jpg'])
