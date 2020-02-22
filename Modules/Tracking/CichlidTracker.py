@@ -651,10 +651,11 @@ class CichlidTracker:
             self.fileManager.uploadData(prepDirectory)
             self.fileManager.uploadData(self.videoDirectory)
             self.fileManager.uploadData(self.loggerFile)
-            self._modifyPiGS(status = 'UploadSuccessful, ready for delete')
+            self._modifyPiGS(error = 'UploadSuccessful, ready for delete')
 
-        except:
-            self._modifyPiGS(status = 'UploadFailed, Need to rerun')
+        except as e:
+            print('UploadError: ' + str(e))
+            self._modifyPiGS(error = 'UploadFailed, Need to rerun')
         
     def _closeFiles(self):
        try:
