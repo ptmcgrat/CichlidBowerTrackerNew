@@ -653,7 +653,7 @@ class CichlidTracker:
             self.fileManager.uploadData(self.loggerFile)
             self._modifyPiGS(error = 'UploadSuccessful, ready for delete')
 
-        except as e:
+        except Exception as e:
             print('UploadError: ' + str(e))
             self._modifyPiGS(error = 'UploadFailed, Need to rerun')
         
