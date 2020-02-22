@@ -361,7 +361,7 @@ class FileManager():
 		else:
 			raise Exception(local_data + ' does not exist for upload')
 
-		if output.stderr != '':
+		if output.returncode != 0:
 			pdb.set_trace()
 			raise Exception('Error in uploading file: ' + output.stderr)
 

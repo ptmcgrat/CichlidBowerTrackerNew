@@ -648,11 +648,11 @@ class CichlidTracker:
         try:
             self._modifyPiGS(status = 'Uploading data to cloud')
             self.fileManager.uploadData(self.frameDirectory, tarred = True)
-            print(prepDirectory)
+            #print(prepDirectory)
             self.fileManager.uploadData(prepDirectory)
-            print(self.videoDirectory)
+            #print(self.videoDirectory)
             self.fileManager.uploadData(self.videoDirectory)
-            print(self.loggerFile)
+            #print(self.loggerFile)
             self.fileManager.uploadData(self.loggerFile)
             self._modifyPiGS(error = 'UploadSuccessful, ready for delete')
 
