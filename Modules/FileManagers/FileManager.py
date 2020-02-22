@@ -358,11 +358,11 @@ class FileManager():
 			print(['rclone', 'copy', local_path + relative_name, cloud_path])
 			output = subprocess.run(['rclone', 'copy', local_path + relative_name, cloud_path], capture_output = True, encoding = 'utf-8')
 			output = subprocess.run(['rclone', 'check', local_path + relative_name, cloud_path], check = True, capture_output = True, encoding = 'utf-8')
-
 		else:
 			raise Exception(local_data + ' does not exist for upload')
 
 		if output.stderr != '':
+			pdb.set_trace()
 			raise Exception('Error in uploading file: ' + output.stderr)
 
 
