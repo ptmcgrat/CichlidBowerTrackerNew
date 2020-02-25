@@ -77,46 +77,56 @@ def plotPhoto(framefile, dt, fm_obj, user1, user2):
 parser = argparse.ArgumentParser()
 parser.add_argument('User1', type = str, help = 'Which user annotations to compare')
 parser.add_argument('User2', type = str, help = 'Which user annotations to compare')
+parser.add_argument('-p', '--projects', nargs = '+', type = str, help = 'Filter analysis to the following projects')
+parser.add_argument('-l', '--plot', action = 'store_true', help = 'Filter analysis to the following projects')
 
 args = parser.parse_args()
 
 fm_obj = FM()
 fm_obj.downloadAnnotationData('BoxedFish')
 dt = pd.read_csv(fm_obj.localBoxedFishFile)
+if args.projects is not None:
+	dt = dt[dt.ProjectID.isin(args.projects)]
 
 all_dt = pd.merge(dt[dt.User == args.User1], dt[dt.User == args.User2], how = 'inner', on = 'Framefile') 
 grouped = all_dt.groupby('Framefile').max()
-print('Number of frames with annotations from both: ')
-print(pd.pivot_table(grouped, values = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count'))
-print('Number of frames with agreements from both: ')
-print(pd.pivot_table(grouped[grouped.Nfish_x == grouped.Nfish_y], values = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count'))
-print('Number of fish per frame for ' + args.User1)
-print(pd.pivot_table(grouped, values = 'Nfish_y', index = 'Nfish_x', columns = ['ProjectID_x'], aggfunc = 'count'))
-print('Number of fish per frame for ' + args.User2)
-print(pd.pivot_table(grouped, values = 'Nfish_x', index = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count'))
+numofframes=pd.pivot_table(grouped, values = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count')
+numofagreements=pd.pivot_table(grouped[grouped.Nfish_x == grouped.Nfish_y], values = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count')
+numoffish_user1=pd.pivot_table(grouped, values = 'Nfish_y', index = 'Nfish_x', columns = ['ProjectID_x'], aggfunc = 'count')
+numoffish_user2=pd.pivot_table(grouped, values = 'Nfish_x', index = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count')
 
 addIOU(all_dt)
 
 user1_dt = all_dt.groupby(['Framefile','Box_x']).max()[['IOU','Nfish_x','Nfish_y','ProjectID_x']].reset_index()
-print('Average IOU by number of fish:')
-print(pd.pivot_table(user1_dt, values = 'IOU', index = 'Nfish_x', columns = ['ProjectID_x']))
+IOU=pd.pivot_table(user1_dt, values = 'IOU', index = 'Nfish_x', columns = ['ProjectID_x'])
+
+writer = pd.ExcelWriter("output_file.xlsx", engine='xlsxwriter')
+numofframes.to_excel(writer, sheet_name='Num_frames')
+numofagreements.to_excel(writer, sheet_name='Num_agree')
+numoffish_user1.to_excel(writer, sheet_name='Num_fish_'+args.User1)
+numoffish_user2.to_excel(writer, sheet_name='Num_fish_'+args.User2)
+IOU.to_excel(writer, sheet_name='IOU_avg')
+writer.save()
+
 
 sns.boxplot(data = user1_dt, y = 'IOU', x = 'ProjectID_x')
 sns.swarmplot(data = user1_dt, y = 'IOU', x = 'ProjectID_x', color = ".25")
+plt.tight_layout()
+plt.xticks(rotation=90,horizontalalignment="right",fontsize=4.75)
+
 plt.show()
 
 framefiles = all_dt.groupby('Framefile').count().index
 
-"""
-for frame in framefiles:
-	t_dt = all_dt[all_dt.Framefile == frame]
-	if t_dt.iloc[0,3] != t_dt.iloc[0,10]:
-		projectID = frame.split('_' + frame.split('_')[-3] + '_vid')[0]
+if args.plot:
+	for frame in framefiles:
+		t_dt = all_dt[all_dt.Framefile == frame]
+		if t_dt.iloc[0,3] != t_dt.iloc[0,10]:
+			projectID = frame.split('_' + frame.split('_')[-3] + '_vid')[0]
 	#makePrediction(fm_obj.localBoxedFishDir + projectID + '/' + frame)
 		#plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
-	else:
-		t_dt = user1_dt[user1_dt.Framefile == frame]
-		if t_dt.IOU.min() < 0.5:
-			plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
-"""
+		else:
+			t_dt = user1_dt[user1_dt.Framefile == frame]
+			if t_dt.IOU.min() < 0.5:
+				plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
 
