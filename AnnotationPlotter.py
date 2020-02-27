@@ -62,13 +62,25 @@ def plotPhoto(framefile, dt, fm_obj, user1, user2):
 		for row in annotations.itertuples():
 			if row.Box == row.Box:
 				box = eval(row.Box)
-				ax.add_patch(matplotlib.patches.Rectangle((box[0],box[1]), box[2], box[3], linewidth=1,edgecolor='g',facecolor='none'))
+				if row.Sex == 'm':
+					ax.add_patch(matplotlib.patches.Rectangle((box[0],box[1]), box[2], box[3], linewidth=1,edgecolor='blue',facecolor='none'))
+				elif row.Sex == 'f':
+					ax.add_patch(matplotlib.patches.Rectangle((box[0],box[1]), box[2], box[3], linewidth=1,edgecolor='pink',facecolor='none'))
+				else:
+					ax.add_patch(matplotlib.patches.Rectangle((box[0],box[1]), box[2], box[3], linewidth=1,edgecolor='gray',facecolor='none'))
+
+
 	annotations = dt[(dt.User == user2) & (dt.Framefile == framefile)]
 	if len(annotations) > 0:
 		for row in annotations.itertuples():
 			if row.Box == row.Box:
 				box = eval(row.Box)
-				ax.add_patch(matplotlib.patches.Rectangle((box[0],box[1]), box[2], box[3], linewidth=1,edgecolor='r',facecolor='none'))
+				if row.Sex == 'm':
+					ax.add_patch(matplotlib.patches.Rectangle((box[0],box[1]), box[2], box[3], linewidth=1,edgecolor='blue',facecolor='none', linestyle='--'))
+				elif row.Sex == 'f':
+					ax.add_patch(matplotlib.patches.Rectangle((box[0],box[1]), box[2], box[3], linewidth=1,edgecolor='pink',facecolor='none', linestyle='--'))
+				else:
+					ax.add_patch(matplotlib.patches.Rectangle((box[0],box[1]), box[2], box[3], linewidth=1,edgecolor='gray',facecolor='none', linestyle='--'))
 
 	plt.title(framefile)
 	plt.show()
@@ -82,12 +94,14 @@ parser.add_argument('-l', '--plot', action = 'store_true', help = 'Filter analys
 
 args = parser.parse_args()
 
+print('Downloading data')
 fm_obj = FM()
-fm_obj.downloadAnnotationData('BoxedFish')
+#fm_obj.downloadAnnotationData('BoxedFish')
 dt = pd.read_csv(fm_obj.localBoxedFishFile)
 if args.projects is not None:
 	dt = dt[dt.ProjectID.isin(args.projects)]
 
+print('Done')
 all_dt = pd.merge(dt[dt.User == args.User1], dt[dt.User == args.User2], how = 'inner', on = 'Framefile') 
 grouped = all_dt.groupby('Framefile').max()
 numofframes=pd.pivot_table(grouped, values = 'Nfish_y', columns = ['ProjectID_x'], aggfunc = 'count')
@@ -97,8 +111,12 @@ numoffish_user2=pd.pivot_table(grouped, values = 'Nfish_x', index = 'Nfish_y', c
 
 addIOU(all_dt)
 
-user1_dt = all_dt.groupby(['Framefile','Box_x']).max()[['IOU','Nfish_x','Nfish_y','ProjectID_x']].reset_index()
+#user1_dt = all_dt.groupby(['Framefile','Box_x'])['IOU'].transform(max) == all_dt [['IOU','Nfish_x','Nfish_y','ProjectID_x', 'Sex_x', 'Sex_y']].reset_index()
+idx = all_dt.groupby(['Framefile','Box_x'])['IOU'].transform(max) == all_dt['IOU']
+user1_dt = all_dt[idx][['IOU','Nfish_x','Nfish_y','ProjectID_x', 'Sex_x', 'Sex_y']].reset_index()
+#pdb.set_trace()
 IOU=pd.pivot_table(user1_dt, values = 'IOU', index = 'Nfish_x', columns = ['ProjectID_x'])
+Sexes=pd.pivot_table(user1_dt, values = 'IOU', index = ['Sex_x','Sex_y'], columns = ['ProjectID_x'],aggfunc='count')
 
 writer = pd.ExcelWriter("output_file.xlsx", engine='xlsxwriter')
 numofframes.to_excel(writer, sheet_name='Num_frames')
@@ -106,6 +124,8 @@ numofagreements.to_excel(writer, sheet_name='Num_agree')
 numoffish_user1.to_excel(writer, sheet_name='Num_fish_'+args.User1)
 numoffish_user2.to_excel(writer, sheet_name='Num_fish_'+args.User2)
 IOU.to_excel(writer, sheet_name='IOU_avg')
+Sexes.to_excel(writer, sheet_name='Sexes_avg')
+
 writer.save()
 
 
@@ -122,11 +142,12 @@ if args.plot:
 	for frame in framefiles:
 		t_dt = all_dt[all_dt.Framefile == frame]
 		if t_dt.iloc[0,3] != t_dt.iloc[0,10]:
-			projectID = frame.split('_' + frame.split('_')[-3] + '_vid')[0]
-	#makePrediction(fm_obj.localBoxedFishDir + projectID + '/' + frame)
-		#plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
+			plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
 		else:
 			t_dt = user1_dt[user1_dt.Framefile == frame]
 			if t_dt.IOU.min() < 0.5:
 				plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
+			elif len(t_dt[t_dt.Sex_x != t_dt.Sex_y]) > 0:
+				plotPhoto(frame, dt, fm_obj, args.User1, args.User2)
+
 
