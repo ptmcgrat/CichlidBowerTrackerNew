@@ -96,7 +96,7 @@ args = parser.parse_args()
 
 print('Downloading data')
 fm_obj = FM()
-fm_obj.downloadAnnotationData('BoxedFish')
+#fm_obj.downloadAnnotationData('BoxedFish')
 dt = pd.read_csv(fm_obj.localBoxedFishFile)
 if args.projects is not None:
 	dt = dt[dt.ProjectID.isin(args.projects)]
@@ -113,7 +113,7 @@ addIOU(all_dt)
 
 #user1_dt = all_dt.groupby(['Framefile','Box_x'])['IOU'].transform(max) == all_dt [['IOU','Nfish_x','Nfish_y','ProjectID_x', 'Sex_x', 'Sex_y']].reset_index()
 idx = all_dt.groupby(['Framefile','Box_x'])['IOU'].transform(max) == all_dt['IOU']
-user1_dt = all_dt[idx][['IOU','Nfish_x','Nfish_y','ProjectID_x', 'Sex_x', 'Sex_y']].reset_index()
+user1_dt = all_dt[idx][['IOU','Nfish_x','Nfish_y','ProjectID_x', 'Sex_x', 'Sex_y', 'Framefile']].reset_index()
 #pdb.set_trace()
 IOU=pd.pivot_table(user1_dt, values = 'IOU', index = 'Nfish_x', columns = ['ProjectID_x'])
 Sexes=pd.pivot_table(user1_dt, values = 'IOU', index = ['Sex_x','Sex_y'], columns = ['ProjectID_x'],aggfunc='count')
