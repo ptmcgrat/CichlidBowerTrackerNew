@@ -96,7 +96,7 @@ args = parser.parse_args()
 
 print('Downloading data')
 fm_obj = FM()
-#fm_obj.downloadAnnotationData('BoxedFish')
+fm_obj.downloadAnnotationData('BoxedFish')
 dt = pd.read_csv(fm_obj.localBoxedFishFile)
 if args.projects is not None:
 	dt = dt[dt.ProjectID.isin(args.projects)]
