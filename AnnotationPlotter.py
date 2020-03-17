@@ -90,16 +90,24 @@ parser = argparse.ArgumentParser()
 parser.add_argument('User1', type = str, help = 'Which user annotations to compare')
 parser.add_argument('User2', type = str, help = 'Which user annotations to compare')
 parser.add_argument('-p', '--projects', nargs = '+', type = str, help = 'Filter analysis to the following projects')
-parser.add_argument('-l', '--plot', action = 'store_true', help = 'Filter analysis to the following projects')
+parser.add_argument('-f', '--fix', action = 'store_true', help = 'Use this flag to ')
 
 args = parser.parse_args()
 
 print('Downloading data')
 fm_obj = FM()
-fm_obj.downloadAnnotationData('BoxedFish')
+fm_obj.downloadData(fm_obj.localBoxedFishFile)
+#fm_obj.downloadAnnotationData('BoxedFish')
 dt = pd.read_csv(fm_obj.localBoxedFishFile)
 if args.projects is not None:
 	dt = dt[dt.ProjectID.isin(args.projects)]
+
+if args.plot and args.projects is not None:
+	for projectID in args.projects:
+		fm_obj.downloadData(fm_obj.localBoxedFishDir + projectID, tarred = True)
+
+elif args.plot and args.projects is None:
+	fm_obj.downloadAnnotationData('BoxedFish')
 
 print('Done')
 all_dt = pd.merge(dt[dt.User == args.User1], dt[dt.User == args.User2], how = 'inner', on = 'Framefile') 
