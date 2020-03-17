@@ -346,7 +346,8 @@ class FileManager():
 
 		if tarred:
 			output = subprocess.run(['tar', '-cvf', local_path + relative_name + '.tar', '-C', local_path, relative_name], capture_output = True, encoding = 'utf-8')
-			if output.stderr != '':
+			if output.returncode != 0:
+				print(output.stderr)
 				raise Exception('Error in tarring ' + local_data)
 			relative_name += '.tar'
 
