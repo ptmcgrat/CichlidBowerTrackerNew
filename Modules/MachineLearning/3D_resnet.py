@@ -25,6 +25,7 @@ parser.add_argument('--fine_tune', default=False, type=bool,
 
 parser.add_argument('--mode', default = 'train', type = str, choices = ['train', 'predict'], 
                     help = 'Train a model or predict labels using previously created model')
+
 parser.add_argument('--master_dir', default='/data/home/llong35/Temp/CichlidAnalyzer', type=str,
                     help='path of the master directory')
 

@@ -34,6 +34,6 @@ old_dt.to_csv(fm_obj.localBoxedFishFile, sep = ',', columns = ['ProjectID', 'Fra
 if not args.Practice:
 	fm_obj.uploadData(fm_obj.localBoxedFishFile)
 
-subprocess.run(['rm', '-rf', self.localProjectDir])
-subprocess.run(['rm', '-rf', self.localAnnotationDir])
+subprocess.run(['rm', '-rf', fm_obj.localProjectDir])
+subprocess.run(['rm', '-rf', fm_obj.localAnnotationDir])
 

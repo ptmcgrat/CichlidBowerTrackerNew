@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 plt.rcParams['keymap.all_axes'] = '' #a
 plt.rcParams['keymap.back'] = ['left', 'backspace', 'MouseButton.BACK'] #c
 plt.rcParams['keymap.pan'] = '' #p
-plt.rcParams['keymap.quit'] = ['ctrl+w', 'cmd+w']
-
+plt.rcParams['keymap.quit'] = ['ctrl+w', 'cmd+w'] #q
+plt.rcParams['keymap.save'] = ['ctrl+s'] #s
 # Import buttons that we will use to make this interactive
 from matplotlib.widgets import Button, RadioButtons, RectangleSelector, Slider
 
@@ -465,7 +465,10 @@ class AnnotationDisagreements:
 		self.bt_user1 = Button(self.ax_user1, 'User ' + r"$\bf{1}$" + ': ' + self.user1[:5])
 		self.ax_user2 = self.fig.add_axes([0.85,0.325,0.125,0.04])
 		self.bt_user2 = Button(self.ax_user2, 'User ' + r"$\bf{2}$" + ': ' + self.user2[:5])
-
+		self.ax_neither = self.fig.add_axes([0.85,0.275,0.125,0.04])
+		self.bt_neither = Button(self.ax_neither, r"$\bf{N}$" + 'either')
+		self.ax_skip = self.fig.add_axes([0.85,0.225,0.125,0.04])
+		self.bt_skip = Button(self.ax_skip, r"$\bf{S}$" + 'kip')
 		# Create click button for quitting annotations
 		self.ax_quit = self.fig.add_axes([0.85,0.175,0.125,0.04])
 		self.bt_quit = Button(self.ax_quit, r"$\bf{Q}$" + 'uit and save')
@@ -484,6 +487,9 @@ class AnnotationDisagreements:
 		# Connect buttons to specific functions		
 		self.bt_user1.on_clicked(self._nextFrame)
 		self.bt_user2.on_clicked(self._nextFrame)
+		self.bt_neither.on_clicked(self._nextFrame)
+		self.bt_skip.on_clicked(self._nextFrame)
+
 		self.bt_quit.on_clicked(self._quit)
 		self.slid_saturation.on_changed(self._updateFrame)
 
@@ -491,9 +497,7 @@ class AnnotationDisagreements:
 		plt.show()
 
 	def _keypress(self, event):
-		if event.key == '1':
-			self._nextFrame(event)
-		elif event.key == '2':
+		if event.key in ['1','2','n','s']:
 			self._nextFrame(event)
 		elif event.key == 'q':
 			self._quit(event)
@@ -507,6 +511,13 @@ class AnnotationDisagreements:
 		elif event.key == '2' or event.inaxes == self.ax_user2:
 			self.dt.loc[(self.dt.User == self.user2) & (self.dt.Framefile == self.bad_frames[self.frame_index]), 'CorrectAnnotation'] = 'Yes'
 			self.dt.loc[(self.dt.User == self.user1) & (self.dt.Framefile == self.bad_frames[self.frame_index]), 'CorrectAnnotation'] = 'No'
+		elif event.key == 'n' or event.inaxes == self.ax_neither:
+			self.dt.loc[(self.dt.User == self.user2) & (self.dt.Framefile == self.bad_frames[self.frame_index]), 'CorrectAnnotation'] = 'No'
+			self.dt.loc[(self.dt.User == self.user1) & (self.dt.Framefile == self.bad_frames[self.frame_index]), 'CorrectAnnotation'] = 'No'
+		elif event.key == 's' or event.inaxes == self.ax_skip:
+			pass
+		else:
+			print('Unknown event')
 
 		self.dt.to_csv(self.annotationFile, sep = ',', columns = ['ProjectID', 'Framefile', 'Nfish', 'Sex', 'Box', 'User', 'CorrectAnnotation', 'DateTime'])
 
