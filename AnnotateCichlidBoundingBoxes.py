@@ -39,7 +39,10 @@ if not args.Practice:
 
 		# Next download the annotations and frames already stored in the annotation database
 		fm_obj.downloadData(fm_obj.localBoxedFishFile)
-		fm_obj.downloadData(fm_obj.localBoxedFishDir + args.ProjectID, tarred = True)
+		try:
+			fm_obj.downloadData(fm_obj.localBoxedFishDir + args.ProjectID, tarred = True)
+		except FileNotFoundError:
+			fm_obj.createDirectory(fm_obj.localBoxedFishDir + args.ProjectID)
 
 		# Read in and merge new annotations into annotation csv file
 		if os.path.exists(fm_obj.localBoxedFishFile):
