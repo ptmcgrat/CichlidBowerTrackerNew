@@ -462,9 +462,9 @@ class AnnotationDisagreements:
 
 		# Create click buttons for saving frame annotations or starting over
 		self.ax_user1 = self.fig.add_axes([0.85,0.375,0.125,0.04])
-		self.bt_user1 = Button(self.ax_user1, 'User ' + r"$\bf{1}$" + ': ' + self.user1[:5])
+		self.bt_user1 = Button(self.ax_user1, 'User ' + r"$\bf{1}$")
 		self.ax_user2 = self.fig.add_axes([0.85,0.325,0.125,0.04])
-		self.bt_user2 = Button(self.ax_user2, 'User ' + r"$\bf{2}$" + ': ' + self.user2[:5])
+		self.bt_user2 = Button(self.ax_user2, 'User ' + r"$\bf{2}$")
 		self.ax_neither = self.fig.add_axes([0.85,0.275,0.125,0.04])
 		self.bt_neither = Button(self.ax_neither, r"$\bf{N}$" + 'either')
 		self.ax_skip = self.fig.add_axes([0.85,0.225,0.125,0.04])
