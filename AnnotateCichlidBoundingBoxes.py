@@ -67,4 +67,5 @@ if not args.Practice:
 else:
 	print('Practice mode enabled. Will not store annotations.')
 
-subprocess.run(['rm', '-rf', projFileManager.localMasterDir], stderr = subprocess.PIPE)
+subprocess.run(['rm', '-rf', fm_obj.localProjectDir])
+subprocess.run(['rm', '-rf', fm_obj.localAnnotationDir])
