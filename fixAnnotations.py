@@ -8,6 +8,7 @@ parser.add_argument('User1', type = str, help = 'Which user annotations to compa
 parser.add_argument('User2', type = str, help = 'Which user annotations to compare')
 parser.add_argument('ProjectID', type = str, help = 'Project to analyze')
 parser.add_argument('-p', '--Practice', action = 'store_true', help = 'Use if you dont want to save annotations')
+parser.add_argument('-a', '--All', action = 'store_true', help = 'Use if you want to look at all annotations')
 
 
 args = parser.parse_args()
@@ -20,7 +21,7 @@ fm_obj.downloadData(fm_obj.localBoxedFishFile)
 temp_dt = fm_obj.localBoxedFishFile.replace('.csv', '.bu.csv')
 subprocess.run(['cp', fm_obj.localBoxedFishFile, temp_dt])
 
-ad_obj = AD(fm_obj.localBoxedFishDir + args.ProjectID + '/', temp_dt, args.ProjectID, args.User1, args.User2)
+ad_obj = AD(fm_obj.localBoxedFishDir + args.ProjectID + '/', temp_dt, args.ProjectID, args.User1, args.User2, args.All)
 
 # Redownload csv in case new annotations have been added
 fm_obj.downloadData(fm_obj.localBoxedFishFile)

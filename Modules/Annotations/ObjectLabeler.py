@@ -369,19 +369,23 @@ class ObjectLabeler():
 		plt.close(self.fig)
 
 class AnnotationDisagreements:
-	def __init__(self, frameDirectory, annotationFile, projectID, user1, user2):
+	def __init__(self, frameDirectory, annotationFile, projectID, user1, user2, all):
 		self.frameDirectory = frameDirectory
 		self.annotationFile = annotationFile
 		self.projectID = projectID
 		self.user1 = user1
 		self.user2 = user2
+		self.all = all
 
 		self.IOU_cutoff = 0.5
 
 		# Read in annotations and filter by project
 		assert os.path.isfile(self.annotationFile)
 		self.dt = pd.read_csv(self.annotationFile, index_col = 0)
-		self.dt = self.dt[(self.dt.ProjectID == self.projectID) & (self.dt.CorrectAnnotation != self.dt.CorrectAnnotation)]
+		if not all:
+			self.dt = self.dt[(self.dt.ProjectID == self.projectID) & (self.dt.CorrectAnnotation != self.dt.CorrectAnnotation)]
+		else:
+			self.dt = self.dt[(self.dt.ProjectID == self.projectID)]
 
 		# Merge annotations for user 1 and user 2 and calculate IOU values
 		self.users_dt = pd.merge(self.dt[self.dt.User == self.user1], self.dt[self.dt.User == self.user2], how = 'inner', on = 'Framefile') 
@@ -406,8 +410,11 @@ class AnnotationDisagreements:
 		self.bad_frames = list(self.bad_frames)
 
 		# Set first user as correct and second user as incorrect for non bad frames
-		self.dt.loc[(~self.dt.Framefile.isin(self.bad_frames)) & (self.dt.User == self.user1), 'CorrectAnnotation'] = 'Yes'
-		self.dt.loc[(~self.dt.Framefile.isin(self.bad_frames)) & (self.dt.User == self.user2), 'CorrectAnnotation'] = 'No'
+		if not all:
+			self.dt.loc[(~self.dt.Framefile.isin(self.bad_frames)) & (self.dt.User == self.user1), 'CorrectAnnotation'] = 'Yes'
+			self.dt.loc[(~self.dt.Framefile.isin(self.bad_frames)) & (self.dt.User == self.user2), 'CorrectAnnotation'] = 'No'
+		else:
+			self.bad_frames = list(set(all_framefile))
 
 		# Start figure
 		if len(self.bad_frames) != 0:
