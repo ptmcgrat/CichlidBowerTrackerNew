@@ -440,7 +440,7 @@ class AnnotationDisagreements:
 		img = self.converter.enhance(self.slid_saturation.val)
 
 		self.image_obj = self.ax_image.imshow(img)
-		self.ax_image.set_title('Frame ' + str(self.frame_index) + ': ' + self.bad_frames[self.frame_index])
+		self.ax_image.set_title('Frame ' + str(self.frame_index) + ': ' + self.bad_frames[self.frame_index] + ' ' + str(self.frame_index) + ' of ' + str(len(self.bad_frames)))
 
 		annotations = self.dt[(self.dt.User == self.user1) & (self.dt.Framefile == self.bad_frames[self.frame_index])]
 		if len(annotations) > 0:
@@ -541,7 +541,7 @@ class AnnotationDisagreements:
 		img = self.converter.enhance(self.slid_saturation.val)
 
 		self.image_obj.set_array(img)
-		self.ax_image.set_title('Frame ' + str(self.frame_index) + ': ' + self.bad_frames[self.frame_index])
+		self.ax_image.set_title('Frame ' + str(self.frame_index) + ': ' + self.bad_frames[self.frame_index] + ' ' + str(self.frame_index) + ' of ' + str(len(self.bad_frames)))
 
 		# Remove old patches
 		self.ax_image.patches = []
