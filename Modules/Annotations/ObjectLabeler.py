@@ -414,7 +414,7 @@ class AnnotationDisagreements:
 			self.dt.loc[(~self.dt.Framefile.isin(self.bad_frames)) & (self.dt.User == self.user1), 'CorrectAnnotation'] = 'Yes'
 			self.dt.loc[(~self.dt.Framefile.isin(self.bad_frames)) & (self.dt.User == self.user2), 'CorrectAnnotation'] = 'No'
 		else:
-			self.bad_frames = list(set(all_framefile))
+			self.bad_frames = list(set(all_framefiles))
 
 		# Start figure
 		if len(self.bad_frames) != 0:
