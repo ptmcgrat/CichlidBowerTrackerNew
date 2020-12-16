@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os, subprocess, pdb, platform
 import pandas as pd
 
