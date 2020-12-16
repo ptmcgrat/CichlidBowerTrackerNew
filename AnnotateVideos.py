@@ -26,7 +26,7 @@ fm_obj.downloadData(fm_obj.localLabeledClipsFile)
 temp_csv = fm_obj.localAnalysisDir + 'NewAnnotations.csv'
 
 # Read in annotations and create csv file for all annotations with the same user and projectID
-dt = pd.read_csv(fm_obj.localLabeledClipsFile)
+dt = pd.read_csv(fm_obj.localLabeledClipsFile, index_col = 'LID')
 new_dt = pd.DataFrame(columns = dt.columns)
 clips = [x for x in os.listdir(fm_obj.localManualLabelClipsDir) if 'ManualLabel.mp4' in x]
 
@@ -36,7 +36,7 @@ print("Type 'c': build scoop; 'f': feed scoop; 'p': build spit; 't': feed spit; 
 		
 newClips = []
 annotatedClips = 0
-#shuffle(clips)
+random.shuffle(clips)
 
 for f in clips:
 
@@ -67,7 +67,7 @@ for f in clips:
 	if info == ord('k'):
 		continue #skip
 
-	new_dt.loc[len(new_dt)] = [f.replace('.mp4',''), chr(info), initials, str(datetime.datetime.now())]
+	new_dt.loc[len(new_dt)] = [f.replace('_ManualLabel.mp4',''), chr(info), initials, str(datetime.datetime.now())]
 
 	new_dt.to_csv(temp_csv, sep = ',')
 
@@ -76,63 +76,27 @@ for f in clips:
 	if args.Number is not None and annotatedClips >= args.Number:
 		break
 
-pdb.set_trace()
-
 
 if not args.Practice:
 	dt = dt.append(new_dt)
+	dt.index.name = 'LID'
 	dt.to_csv(fm_obj.localLabeledClipsFile, sep = ',')
-	#fm_obj.uploadData(fm_obj.localLabeledClipsFile)
+	print('Backing up csv file')
+	fm_obj.uploadData(fm_obj.localLabeledClipsFile)
 
-	fm_obj.downloadData(fm_obj.localLabeledClipsProjectDir, tarred = True)
+	try:
+		fm_obj.downloadData(fm_obj.localLabeledClipsProjectDir, tarred = True)
+	except FileNotFoundError:
+		fm_obj.createDirectory(fm_obj.localLabeledClipsProjectDir)
 
-"""
-dt = dt[(dt.ProjectID == args.ProjectID) & (dt.User == os.getenv('USER'))]
-dt.to_csv(fm_obj.localLabeledFramesFile, sep = ',', columns = ['ProjectID', 'Framefile', 'Nfish', 'Sex', 'Box', 'CorrectAnnotation', 'User', 'DateTime'])
+	for new_clip in new_dt.ClipName:
+		subprocess.run(['mv', fm_obj.localManualLabelClipsDir + new_clip + '.mp4', fm_obj.localLabeledClipsProjectDir])
+		subprocess.run(['mv', fm_obj.localManualLabelClipsDir + new_clip + '_ManualLabel.mp4', fm_obj.localLabeledClipsProjectDir])
+	print('Backing up clips')
+	fm_obj.uploadData(fm_obj.localLabeledClipsProjectDir, tarred = True)
 
-obj = OL(fm_obj.localManualLabelFramesDir, fm_obj.localLabeledFramesFile, args.Number, args.ProjectID)
-
-
-
-
-if not args.Practice:
-	# Backup annotations. Redownload to avoid race conditions
-	if not os.path.exists(fm_obj.localLabeledFramesFile):
-		print(fm_obj.localLabeledFramesFile + 'does not exist. Did you annotate any new frames? Quitting...')
-	else:
-		# First read in the new annotations
-		newAnn_DT = pd.read_csv(fm_obj.localLabeledFramesFile, index_col = 0)
-
-		# Next download the annotations and frames already stored in the annotation database
-		fm_obj.downloadData(fm_obj.localBoxedFishFile)
-		try:
-			fm_obj.downloadData(fm_obj.localBoxedFishDir + args.ProjectID, tarred = True)
-		except FileNotFoundError:
-			fm_obj.createDirectory(fm_obj.localBoxedFishDir + args.ProjectID)
-
-		# Read in and merge new annotations into annotation csv file
-		if os.path.exists(fm_obj.localBoxedFishFile):
-			old_DT = pd.read_csv(fm_obj.localBoxedFishFile)
-			old_DT = old_DT.append(newAnn_DT, sort=True).drop_duplicates(subset = ['ProjectID', 'Framefile', 'User', 'Sex', 'Box'])
-		else:
-			print('Annotation database file does not exist yet. Creating')
-			old_DT = newAnn_DT
-
-		old_DT.to_csv(fm_obj.localBoxedFishFile, sep = ',', columns = ['ProjectID', 'Framefile', 'Nfish', 'Sex', 'Box', 'CorrectAnnotation','User', 'DateTime'])
-
-		# Add newly annotated frames to annotation database
-		for row in newAnn_DT.itertuples():
-			if not os.path.exists(fm_obj.localBoxedFishDir + args.ProjectID + '/' + row.Framefile):
-				output = subprocess.run(['cp', fm_obj.localManualLabelFramesDir + row.Framefile, fm_obj.localBoxedFishDir + args.ProjectID + '/'], stderr = subprocess.PIPE, encoding = 'utf-8')
-				if output.stderr != '':
-					print(output.stderr)
-					raise Exception
-
-		fm_obj.uploadData(fm_obj.localBoxedFishFile)
-		fm_obj.uploadData(fm_obj.localBoxedFishDir + args.ProjectID, tarred = True)
-else:
-	print('Practice mode enabled. Will not store annotations.')
-
+print('Complete!')
 subprocess.run(['rm', '-rf', fm_obj.localProjectDir])
+subprocess.run(['rm', '-rf', fm_obj.localMLDir])
 subprocess.run(['rm', '-rf', fm_obj.localAnnotationDir])
-"""
+
