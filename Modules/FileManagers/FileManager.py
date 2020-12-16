@@ -280,3 +280,89 @@ class FileManager():
 
 		# Manual Label Frame 
 		self.nManualLabelFrames = 500
+
+	def _identifyPiDirectory(self):
+		writableDirs = []
+		try:
+			possibleDirs = os.listdir('/media/pi')
+		except FileNotFoundError:
+			return
+
+		for d in possibleDirs:
+
+			try:
+				with open('/media/pi/' + d + '/temp.txt', 'w') as f:
+					print('Test', file = f)
+				with open('/media/pi/' + d + '/temp.txt', 'r') as f:
+					for line in f:
+						if 'Test' in line:
+							writableDirs.append(d)
+			except:
+				pass
+			try:
+				os.remove('/media/pi/' + d + '/temp.txt')
+			except FileNotFoundError:
+				continue
+		
+		if len(writableDirs) == 1:
+			self.localMasterDir = '/media/pi/' + d + '/CichlidAnalyzer/'
+			self.system = 'pi'
+		elif len(writableDirs) == 0:
+			raise Exception('No writable drives in /media/pi/')
+		else:
+			raise Exception('Multiple writable drives in /media/pi/. Options are: ' + str(writableDirs))
+
+	def createDirectory(self, directory):
+		if not os.path.exists(directory):
+			os.makedirs(directory)
+
+	def downloadData(self, local_data, tarred = False):
+
+		relative_name = local_data.rstrip('/').split('/')[-1] + '.tar' if tarred else local_data.rstrip('/').split('/')[-1]
+		local_path = local_data.split(local_data.rstrip('/').split('/')[-1])[0]
+		cloud_path = local_path.replace(self.localMasterDir, self.cloudMasterDir)
+
+		cloud_objects = subprocess.run(['rclone', 'lsf', cloud_path], capture_output = True, encoding = 'utf-8').stdout.split()
+
+		if relative_name + '/' in cloud_objects: #directory
+			output = subprocess.run(['rclone', 'copy', cloud_path + relative_name, local_path + relative_name], capture_output = True, encoding = 'utf-8')
+		elif relative_name in cloud_objects: #file
+			output = subprocess.run(['rclone', 'copy', cloud_path + relative_name, local_path], capture_output = True, encoding = 'utf-8')
+		else:
+			raise FileNotFoundError('Cant find file for download: ' + cloud_path + relative_name)
+
+		if not os.path.exists(local_path + relative_name):
+			raise FileNotFoundError('Error downloading: ' + local_path + relative_name)
+
+		if tarred:
+			# Untar directory
+			output = subprocess.run(['tar', '-xvf', local_path + relative_name, '-C', local_path], capture_output = True, encoding = 'utf-8')
+			output = subprocess.run(['rm', '-f', local_path + relative_name], capture_output = True, encoding = 'utf-8')
+
+	def uploadData(self, local_data, tarred = False):
+
+		relative_name = local_data.rstrip('/').split('/')[-1]
+		local_path = local_data.split(relative_name)[0]
+		cloud_path = local_path.replace(self.localMasterDir, self.cloudMasterDir)
+
+		if tarred:
+			output = subprocess.run(['tar', '-cvf', local_path + relative_name + '.tar', '-C', local_path, relative_name], capture_output = True, encoding = 'utf-8')
+			if output.returncode != 0:
+				print(output.stderr)
+				raise Exception('Error in tarring ' + local_data)
+			relative_name += '.tar'
+
+		if os.path.isdir(local_path + relative_name):
+			output = subprocess.run(['rclone', 'copy', local_path + relative_name, cloud_path + relative_name], capture_output = True, encoding = 'utf-8')
+			subprocess.run(['rclone', 'check', local_path + relative_name, cloud_path + relative_name], check = True)
+
+		elif os.path.isfile(local_path + relative_name):
+			print(['rclone', 'copy', local_path + relative_name, cloud_path])
+			output = subprocess.run(['rclone', 'copy', local_path + relative_name, cloud_path], capture_output = True, encoding = 'utf-8')
+			output = subprocess.run(['rclone', 'check', local_path + relative_name, cloud_path], check = True, capture_output = True, encoding = 'utf-8')
+		else:
+			raise Exception(local_data + ' does not exist for upload')
+
+		if output.returncode != 0:
+			pdb.set_trace()
+			raise Exception('Error in uploading file: ' + output.stderr)
